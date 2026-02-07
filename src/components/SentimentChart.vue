@@ -1,17 +1,17 @@
 <script setup>
-import { Pie } from 'vue-chartjs'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-import { computed } from 'vue'
+import { Pie } from 'vue-chartjs';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { computed } from 'vue';
 
 // Регистрируем компоненты Chart.js
-ChartJS.register(ArcElement, Tooltip, Legend)
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const props = defineProps({
     stats: {
         type: Object,
         required: true,
     },
-})
+});
 
 // Настройка данных для графика
 const chartData = computed(() => ({
@@ -27,7 +27,7 @@ const chartData = computed(() => ({
             ],
         },
     ],
-}))
+}));
 
 const chartOptions = {
     responsive: true,
@@ -37,7 +37,7 @@ const chartOptions = {
             position: 'bottom',
         },
     },
-}
+};
 </script>
 
 <template>
