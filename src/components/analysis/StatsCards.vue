@@ -16,9 +16,9 @@ defineProps({
 </script>
 
 <template>
-    <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="grid grid-cols-2 gap-4">
         <div
-            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-500 flex flex-col justify-between"
+            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-500 flex flex-col justify-center items-center"
         >
             <p class="text-gray-400 text-xs uppercase font-bold tracking-wider">
                 Всего
@@ -27,7 +27,7 @@ defineProps({
         </div>
 
         <div
-            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500 flex flex-col justify-between"
+            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500 flex flex-col justify-center items-center"
         >
             <p
                 class="text-gray-400 text-xs uppercase font-bold tracking-wider text-green-600"
@@ -40,7 +40,7 @@ defineProps({
         </div>
 
         <div
-            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-red-500 flex flex-col justify-between"
+            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-red-500 flex flex-col justify-center items-center"
         >
             <p
                 class="text-gray-400 text-xs uppercase font-bold tracking-wider text-red-600"
@@ -51,7 +51,7 @@ defineProps({
         </div>
 
         <div
-            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-purple-500 flex flex-col justify-between"
+            class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-purple-500 flex flex-col justify-center items-center"
         >
             <p
                 class="text-gray-400 text-xs uppercase font-bold tracking-wider text-purple-600"

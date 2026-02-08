@@ -13,6 +13,7 @@ import AiSummary from '@/components/analysis/AiSummary.vue';
 import KeywordCloud from '@/components/analysis/KeywordCloud.vue';
 import CommentsTable from '@/components/analysis/CommentsTable.vue';
 import SentimentChart from '@/components/SentimentChart.vue';
+import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue'; // <--- Убедись, что файл существует
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 // --- ИНИЦИАЛИЗАЦИЯ ---
@@ -24,14 +25,14 @@ const { toast, showNotify } = useNotifications();
 // --- СОСТОЯНИЕ ---
 const form = ref({
     phoneNumber: '+77714594458',
-    postLink: 'https://t.me/TrumpJr/10541',
+    postLink: 'https://t.me/petya_english/5478',
     platform: 'telegram',
 });
 
 const codeSent = ref(false);
 const verificationCode = ref('');
 
-// Общее состояние фильтров (чтобы Облако Тегов и Таблица работали сообща)
+// Фильтры
 const searchQuery = ref('');
 const filterSentiment = ref('all');
 
@@ -76,30 +77,22 @@ const startAnalysis = async () => {
     filterSentiment.value = 'all';
 
     try {
-        // Запоминаем время начала на клиенте (для мгновенного отображения)
-        // ИЛИ берем данные с сервера, если store возвращает результат
         const start = Date.now();
-
         await analysisStore.fetchAnalysis(form.value);
 
-        // Получаем реальное время с сервера (оно теперь есть в results.value)
         const serverTime = results.value.executionTime
-            ? (results.value.executionTime / 1000).toFixed(1) // Переводим мс в секунды (2400 -> 2.4)
-            : ((Date.now() - start) / 1000).toFixed(1); // Фоллбек, если сервер не вернул
+            ? (results.value.executionTime / 1000).toFixed(1)
+            : ((Date.now() - start) / 1000).toFixed(1);
 
-        // ОБНОВЛЕННОЕ УВЕДОМЛЕНИЕ
         showNotify(`Готово! Обработано за ${serverTime} сек. ⏱`, 'success');
-
         analysisStore.fetchHistory();
     } catch (e) {
         showNotify('Ошибка при анализе', 'error');
     }
 };
 
-// Обработчик клика по тегу в облаке слов
 const handleKeywordSelect = (word) => {
     searchQuery.value = word;
-    // Если выбрали слово - скроллим к таблице
     if (word) {
         const tableElement = document.getElementById('comments-table');
         if (tableElement) tableElement.scrollIntoView({ behavior: 'smooth' });
@@ -180,12 +173,12 @@ const handleKeywordSelect = (word) => {
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <input
                                 v-model="form.phoneNumber"
-                                placeholder="Ваш номер (для проверки)"
+                                placeholder="Ваш номер"
                                 class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                             <input
                                 v-model="form.postLink"
-                                placeholder="Ссылка на пост (https://t.me/...)"
+                                placeholder="Ссылка на пост"
                                 class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                             <button
@@ -202,7 +195,7 @@ const handleKeywordSelect = (word) => {
                         </div>
                     </div>
 
-                    <div v-if="results" class="space-y-8 animate-fade-in">
+                    <div v-if="results" class="space-y-6 animate-fade-in">
                         <AiSummary :stats="results.stats" />
 
                         <KeywordCloud
@@ -212,20 +205,67 @@ const handleKeywordSelect = (word) => {
                         />
 
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="lg:col-span-2">
+                            <div class="lg:col-span-2 space-y-6">
+                                <div
+                                    v-if="
+                                        results.reactions &&
+                                        results.reactions.length > 0
+                                    "
+                                    class="bg-white p-6 rounded-2xl shadow-sm animate-fade-in"
+                                >
+                                    <h3
+                                        class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4"
+                                    >
+                                        Реакции на пост
+                                    </h3>
+                                    <div class="flex flex-wrap gap-3">
+                                        <div
+                                            v-for="(
+                                                react, index
+                                            ) in results.reactions"
+                                            :key="index"
+                                            class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100 hover:bg-blue-50 transition-colors cursor-default"
+                                        >
+                                            <span class="text-xl">{{
+                                                react.emoji
+                                            }}</span>
+                                            <span
+                                                class="font-bold text-gray-700 text-sm"
+                                                >{{ react.count }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <StatsCards :stats="results.stats" />
                             </div>
+
                             <div
                                 class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center relative min-h-[300px]"
                             >
                                 <h3
                                     class="absolute top-6 left-6 text-xs font-bold text-gray-400 uppercase"
                                 >
-                                    Диаграмма
+                                    Общее соотношение
                                 </h3>
                                 <div class="w-full h-64 mt-4">
                                     <SentimentChart :stats="results.stats" />
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3
+                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                                >
+                                    📈 Динамика настроения по времени
+                                </h3>
+                            </div>
+                            <div class="h-80 w-full">
+                                <SentimentTrendChart
+                                    :comments="results.comments"
+                                />
                             </div>
                         </div>
 
