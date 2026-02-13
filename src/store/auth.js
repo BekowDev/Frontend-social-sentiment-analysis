@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import api from '@/api'
+import { defineStore } from 'pinia';
+import api from '@/api';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -17,21 +17,21 @@ export const useAuthStore = defineStore('auth', {
                 const { data } = await api.post('/auth/login', {
                     email,
                     password,
-                })
-                this.token = data.token
-                localStorage.setItem('token', data.token)
-                return true
+                });
+                this.token = data.token;
+                localStorage.setItem('token', data.token);
+                return true;
             } catch (error) {
-                console.error('Ошибка входа:', error.response?.data?.message)
-                throw error
+                console.error('Ошибка входа:', error.response?.data?.message);
+                throw error;
             }
         },
 
         logout() {
-            this.token = null
-            this.user = null
-            localStorage.removeItem('token')
-            location.reload() // Простой способ сбросить состояние
+            this.token = null;
+            this.user = null;
+            localStorage.removeItem('token');
+            location.reload();
         },
     },
-})
+});

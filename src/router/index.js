@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/store/auth'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/store/auth';
 
 const routes = [
     {
@@ -18,21 +18,20 @@ const routes = [
         component: () => import('@/views/Dashboard.vue'),
         meta: { requiresAuth: true },
     },
-]
+];
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
-})
+});
 
-// Защита роутов
 router.beforeEach((to, from, next) => {
-    const auth = useAuthStore()
+    const auth = useAuthStore();
     if (to.meta.requiresAuth && !auth.isLoggedIn) {
-        next('/login')
+        next('/login');
     } else {
-        next()
+        next();
     }
-})
+});
 
-export default router
+export default router;

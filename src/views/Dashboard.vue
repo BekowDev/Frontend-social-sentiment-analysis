@@ -1,221 +1,216 @@
 <script setup>
-import { ref } from 'vue';
-import { useAuthStore } from '@/store/auth';
-import { useAnalysisStore } from '@/store/analysis';
-import { storeToRefs } from 'pinia';
-import api from '@/api';
-import { useNotifications } from '@/composables/useNotifications';
+    import { ref } from 'vue';
+    import { useAuthStore } from '@/store/auth';
+    import { useAnalysisStore } from '@/store/analysis';
+    import { storeToRefs } from 'pinia';
+    import api from '@/api';
+    import { useNotifications } from '@/composables/useNotifications';
+    import HistorySidebar from '@/components/analysis/HistorySidebar.vue';
+    import StatsCards from '@/components/analysis/StatsCards.vue';
+    import AiSummary from '@/components/analysis/AiSummary.vue';
+    import KeywordCloud from '@/components/analysis/KeywordCloud.vue';
+    import CommentsTable from '@/components/analysis/CommentsTable.vue';
+    import SentimentChart from '@/components/SentimentChart.vue';
+    import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue';
+    import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
-// --- ИМПОРТ КОМПОНЕНТОВ ---
-import HistorySidebar from '@/components/analysis/HistorySidebar.vue';
-import StatsCards from '@/components/analysis/StatsCards.vue';
-import AiSummary from '@/components/analysis/AiSummary.vue';
-import KeywordCloud from '@/components/analysis/KeywordCloud.vue';
-import CommentsTable from '@/components/analysis/CommentsTable.vue';
-import SentimentChart from '@/components/SentimentChart.vue';
-import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue'; // <--- Убедись, что файл существует
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
+    const auth = useAuthStore();
+    const analysisStore = useAnalysisStore();
+    const { results, isLoading } = storeToRefs(analysisStore);
+    const { toast, showNotify } = useNotifications();
 
-// --- ИНИЦИАЛИЗАЦИЯ ---
-const auth = useAuthStore();
-const analysisStore = useAnalysisStore();
-const { results, isLoading } = storeToRefs(analysisStore);
-const { toast, showNotify } = useNotifications();
+    const form = ref({
+        phoneNumber: '+77714594458',
+        postLink: 'https://t.me/petya_english/5478',
+        platform: 'telegram',
+    });
 
-// --- СОСТОЯНИЕ ---
-const form = ref({
-    phoneNumber: '+77714594458',
-    postLink: 'https://t.me/petya_english/5478',
-    platform: 'telegram',
-});
+    const codeSent = ref(false);
+    const verificationCode = ref('');
 
-const codeSent = ref(false);
-const verificationCode = ref('');
+    const searchQuery = ref('');
+    const filterSentiment = ref('all');
 
-// Фильтры
-const searchQuery = ref('');
-const filterSentiment = ref('all');
+    const sendTGCode = async () => {
+        try {
+            if (!form.value.phoneNumber)
+                return showNotify('Введите номер телефона', 'error');
+            await api.post('/social/send-code', {
+                phoneNumber: form.value.phoneNumber,
+                platform: 'telegram',
+            });
+            codeSent.value = true;
+            showNotify('Код отправлен!', 'success');
+        } catch (e) {
+            showNotify(e.response?.data?.message || 'Ошибка отправки', 'error');
+        }
+    };
 
-// --- ЛОГИКА TELEGRAM ---
-const sendTGCode = async () => {
-    try {
-        if (!form.value.phoneNumber)
-            return showNotify('Введите номер телефона', 'error');
-        await api.post('/social/send-code', {
-            phoneNumber: form.value.phoneNumber,
-            platform: 'telegram',
-        });
-        codeSent.value = true;
-        showNotify('Код отправлен!', 'success');
-    } catch (e) {
-        showNotify(e.response?.data?.message || 'Ошибка отправки', 'error');
-    }
-};
+    const verifyTGCode = async () => {
+        try {
+            if (!verificationCode.value)
+                return showNotify('Введите код', 'error');
+            await api.post('/social/verify', {
+                phoneNumber: form.value.phoneNumber,
+                code: verificationCode.value,
+                platform: 'telegram',
+            });
+            showNotify('Успешно подключено!', 'success');
+            codeSent.value = false;
+            verificationCode.value = '';
+        } catch (e) {
+            showNotify(e.response?.data?.message || 'Неверный код', 'error');
+        }
+    };
 
-const verifyTGCode = async () => {
-    try {
-        if (!verificationCode.value) return showNotify('Введите код', 'error');
-        await api.post('/social/verify', {
-            phoneNumber: form.value.phoneNumber,
-            code: verificationCode.value,
-            platform: 'telegram',
-        });
-        showNotify('Успешно подключено!', 'success');
-        codeSent.value = false;
-        verificationCode.value = '';
-    } catch (e) {
-        showNotify(e.response?.data?.message || 'Неверный код', 'error');
-    }
-};
+    const startAnalysis = async () => {
+        if (!form.value.postLink)
+            return showNotify('Введите ссылку на пост', 'error');
 
-// --- ЛОГИКА АНАЛИЗА ---
-const startAnalysis = async () => {
-    if (!form.value.postLink)
-        return showNotify('Введите ссылку на пост', 'error');
+        searchQuery.value = '';
+        filterSentiment.value = 'all';
 
-    searchQuery.value = '';
-    filterSentiment.value = 'all';
+        try {
+            const start = Date.now();
+            await analysisStore.fetchAnalysis(form.value);
 
-    try {
-        const start = Date.now();
-        await analysisStore.fetchAnalysis(form.value);
+            const serverTime = results.value.executionTime
+                ? (results.value.executionTime / 1000).toFixed(1)
+                : ((Date.now() - start) / 1000).toFixed(1);
 
-        const serverTime = results.value.executionTime
-            ? (results.value.executionTime / 1000).toFixed(1)
-            : ((Date.now() - start) / 1000).toFixed(1);
+            showNotify(`Готово! Обработано за ${serverTime} сек. ⏱`, 'success');
+            analysisStore.fetchHistory();
+        } catch (e) {
+            showNotify('Ошибка при анализе', 'error');
+        }
+    };
 
-        showNotify(`Готово! Обработано за ${serverTime} сек. ⏱`, 'success');
-        analysisStore.fetchHistory();
-    } catch (e) {
-        showNotify('Ошибка при анализе', 'error');
-    }
-};
-
-const handleKeywordSelect = (word) => {
-    searchQuery.value = word;
-    if (word) {
-        const tableElement = document.getElementById('comments-table');
-        if (tableElement) tableElement.scrollIntoView({ behavior: 'smooth' });
-    }
-};
+    const handleKeywordSelect = (word) => {
+        searchQuery.value = word;
+        if (word) {
+            const tableElement = document.getElementById('comments-table');
+            if (tableElement)
+                tableElement.scrollIntoView({
+                    behavior: 'smooth',
+                });
+        }
+    };
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-gray-50">
+    <div class="flex min-h-screen bg-gray-100 font-sans">
         <HistorySidebar />
-
-        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <main class="flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
             <nav
-                class="bg-white shadow-sm px-8 py-4 flex justify-between items-center z-20 shrink-0"
-            >
-                <h1 class="text-xl font-black text-blue-600 tracking-tight">
+                class="z-20 flex shrink-0 items-center justify-between bg-white px-8 py-4 shadow-md">
+                <h1
+                    class="text-xl font-bold text-blue-700 tracking-tight uppercase">
                     Social Analyzer
+                    <span class="text-gray-400 font-normal text-sm ml-2"
+                        >v2.0</span
+                    >
                 </h1>
                 <button
                     @click="auth.logout()"
-                    class="text-sm font-medium text-red-500 hover:bg-red-50 px-3 py-1 rounded transition"
-                >
+                    class="rounded-none border border-red-500 px-4 py-2 text-sm font-bold uppercase tracking-wider text-red-600 transition hover:bg-red-50 focus:ring-2 focus:ring-red-200">
                     Выйти
                 </button>
             </nav>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-8" id="main-content">
-                <div class="max-w-6xl mx-auto space-y-8 pb-20">
-                    <LoadingSpinner v-if="isLoading" />
-
+            <div
+                class="flex-1 overflow-y-auto p-4 md:p-8"
+                id="main-content">
+                <div class="mx-auto max-w-6xl space-y-8 pb-20">
                     <div
                         v-if="!results && !isLoading"
-                        class="bg-white p-8 rounded-2xl shadow-sm border-l-8 border-yellow-400 animate-fade-in"
-                    >
-                        <h2 class="text-xl font-bold mb-2 text-gray-800">
+                        class="animate-fade-in rounded-none border-t-4 border-yellow-500 bg-white p-8 shadow-md">
+                        <h2
+                            class="mb-2 text-xl font-bold text-gray-800 uppercase tracking-wide">
                             Шаг 1: Подключение
                         </h2>
-                        <p class="text-sm text-gray-500 mb-6">
+                        <p class="mb-6 text-sm text-gray-600">
                             Введите номер телефона для доступа к API Telegram.
                         </p>
 
-                        <div class="flex gap-4 max-w-md flex-wrap">
+                        <div class="flex max-w-md flex-wrap gap-4">
                             <input
                                 v-model="form.phoneNumber"
                                 placeholder="+7 777 ..."
-                                class="border border-gray-300 p-3 rounded-lg flex-1 focus:ring-2 focus:ring-yellow-400 outline-none"
-                            />
+                                class="flex-1 rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-yellow-500 focus:bg-white focus:ring-1 focus:ring-yellow-500" />
                             <button
                                 @click="sendTGCode"
-                                class="bg-yellow-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-yellow-600 transition"
-                            >
+                                class="rounded-none bg-yellow-500 px-6 py-2 font-bold uppercase tracking-wider text-white shadow transition hover:bg-yellow-600 hover:shadow-md active:translate-y-px">
                                 Выслать код
                             </button>
                         </div>
 
                         <div
                             v-if="codeSent"
-                            class="mt-4 flex gap-4 max-w-md animate-fade-in flex-wrap"
-                        >
+                            class="animate-fade-in mt-6 flex max-w-md flex-wrap gap-4">
                             <input
                                 v-model="verificationCode"
                                 placeholder="Код из SMS"
-                                class="border border-gray-300 p-3 rounded-lg flex-1 focus:ring-2 focus:ring-black outline-none"
-                            />
+                                class="flex-1 rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-black focus:bg-white focus:ring-1 focus:ring-black" />
                             <button
                                 @click="verifyTGCode"
-                                class="bg-gray-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-black transition"
-                            >
+                                class="rounded-none bg-gray-900 px-6 py-2 font-bold uppercase tracking-wider text-white shadow transition hover:bg-black hover:shadow-md active:translate-y-px">
                                 Подтвердить
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm">
-                        <h2 class="text-xl font-bold mb-6 text-gray-800">
+                    <div
+                        class="rounded-none bg-white p-6 shadow-md md:p-8 border-t-4 border-blue-600">
+                        <h2
+                            class="mb-6 text-xl font-bold text-gray-800 uppercase tracking-wide">
                             Новый анализ
                         </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <input
                                 v-model="form.phoneNumber"
                                 placeholder="Ваш номер"
-                                class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
+                                class="rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600" />
                             <input
                                 v-model="form.postLink"
                                 placeholder="Ссылка на пост"
-                                class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
+                                class="rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600" />
                             <button
                                 @click="startAnalysis"
                                 :disabled="isLoading"
-                                class="bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
-                            >
+                                class="flex items-center justify-center gap-2 rounded-none bg-blue-600 font-bold uppercase tracking-wider text-white shadow transition hover:bg-blue-700 hover:shadow-md disabled:opacity-50 disabled:shadow-none">
                                 {{
-                                    isLoading
-                                        ? 'Обработка...'
-                                        : '🚀 Анализировать'
+                                    isLoading ? 'Обработка...' : 'Анализировать'
                                 }}
                             </button>
                         </div>
                     </div>
 
-                    <div v-if="results" class="space-y-6 animate-fade-in">
-                        <AiSummary :stats="results.stats" />
+                    <LoadingSpinner v-if="isLoading" />
 
-                        <KeywordCloud
-                            :comments="results.comments"
-                            :activeKeyword="searchQuery"
-                            @select="handleKeywordSelect"
-                        />
+                    <div
+                        v-if="results"
+                        class="animate-fade-in space-y-6">
+                        <div class="rounded-none shadow-md bg-white">
+                            <AiSummary :stats="results.stats" />
+                        </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="lg:col-span-2 space-y-6">
+                        <div class="rounded-none shadow-md bg-white p-4">
+                            <KeywordCloud
+                                :comments="results.comments"
+                                :activeKeyword="searchQuery"
+                                @select="handleKeywordSelect" />
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                            <div class="space-y-6 lg:col-span-2">
                                 <div
                                     v-if="
                                         results.reactions &&
                                         results.reactions.length > 0
                                     "
-                                    class="bg-white p-6 rounded-2xl shadow-sm animate-fade-in"
-                                >
+                                    class="animate-fade-in rounded-none bg-white p-6 shadow-md">
                                     <h3
-                                        class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4"
-                                    >
+                                        class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase border-b pb-2">
                                         Реакции на пост
                                     </h3>
                                     <div class="flex flex-wrap gap-3">
@@ -224,57 +219,56 @@ const handleKeywordSelect = (word) => {
                                                 react, index
                                             ) in results.reactions"
                                             :key="index"
-                                            class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100 hover:bg-blue-50 transition-colors cursor-default"
-                                        >
+                                            class="flex cursor-default items-center gap-2 rounded-none border border-gray-300 bg-gray-50 px-4 py-2 transition-colors hover:bg-gray-100 hover:shadow-sm">
                                             <span class="text-xl">{{
                                                 react.emoji
                                             }}</span>
                                             <span
-                                                class="font-bold text-gray-700 text-sm"
+                                                class="text-sm font-bold text-gray-700"
                                                 >{{ react.count }}</span
                                             >
                                         </div>
                                     </div>
                                 </div>
 
-                                <StatsCards :stats="results.stats" />
+                                <StatsCards
+                                    :stats="results.stats"
+                                    class="rounded-none shadow-md" />
                             </div>
 
                             <div
-                                class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center relative min-h-[300px]"
-                            >
+                                class="relative flex flex-col items-center justify-center rounded-none bg-white p-6 shadow-md">
                                 <h3
-                                    class="absolute top-6 left-6 text-xs font-bold text-gray-400 uppercase"
-                                >
+                                    class="absolute top-6 left-6 text-xs font-bold text-gray-500 uppercase tracking-widest">
                                     Общее соотношение
                                 </h3>
-                                <div class="w-full h-64 mt-4">
+                                <div class="mt-4 h-64 w-full">
                                     <SentimentChart :stats="results.stats" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl shadow-sm">
-                            <div class="flex items-center justify-between mb-6">
+                        <div class="rounded-none bg-white p-6 shadow-md">
+                            <div
+                                class="mb-6 flex items-center justify-between border-b pb-2">
                                 <h3
-                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest"
-                                >
+                                    class="text-xs font-bold tracking-widest text-gray-500 uppercase">
                                     📈 Динамика настроения по времени
                                 </h3>
                             </div>
                             <div class="h-80 w-full">
                                 <SentimentTrendChart
-                                    :comments="results.comments"
-                                />
+                                    :comments="results.comments" />
                             </div>
                         </div>
 
-                        <div id="comments-table">
+                        <div
+                            id="comments-table"
+                            class="rounded-none shadow-md bg-white">
                             <CommentsTable
                                 :comments="results.comments"
                                 v-model:searchQuery="searchQuery"
-                                v-model:filterSentiment="filterSentiment"
-                            />
+                                v-model:filterSentiment="filterSentiment" />
                         </div>
                     </div>
                 </div>
@@ -285,44 +279,48 @@ const handleKeywordSelect = (word) => {
             <div
                 v-if="toast.show"
                 :class="{
-                    'bg-red-600': toast.type === 'error',
-                    'bg-green-600': toast.type === 'success',
-                    'bg-blue-600': toast.type === 'info',
+                    'bg-red-700': toast.type === 'error',
+                    'bg-green-700': toast.type === 'success',
+                    'bg-blue-700': toast.type === 'info',
                 }"
-                class="fixed bottom-10 right-10 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-4 transition-all cursor-pointer"
-                @click="toast.show = false"
-            >
+                class="fixed right-0 bottom-0 z-50 m-6 flex min-w-[300px] cursor-pointer items-center gap-4 rounded-none px-6 py-4 text-white shadow-xl transition-all border-l-4 border-white/20"
+                @click="toast.show = false">
                 <span class="text-xl font-bold">{{
                     toast.type === 'error' ? '!' : 'i'
                 }}</span>
-                <span class="font-medium">{{ toast.message }}</span>
+                <span class="font-medium tracking-wide">{{
+                    toast.message
+                }}</span>
             </div>
         </transition>
     </div>
 </template>
 
 <style scoped>
-.animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
-}
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-    transition: all 0.4s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-    transform: translateX(100px);
-    opacity: 0;
-}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .slide-fade-enter-active,
+    .slide-fade-leave-active {
+        transition: all 0.4s ease;
+    }
+
+    .slide-fade-enter-from,
+    .slide-fade-leave-to {
+        transform: translateX(100px);
+        opacity: 0;
+    }
 </style>
