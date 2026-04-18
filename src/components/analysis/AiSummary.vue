@@ -1,43 +1,59 @@
 <script setup>
     import { computed } from 'vue';
-    const props = defineProps({
-        stats: {
-            type: Object,
-            required: true,
-        },
+    import { storeToRefs } from 'pinia';
+    import { useI18n } from 'vue-i18n';
+    import { useAnalysisStore } from '@/store/analysis';
+    import SkeletonLoader from '@/components/SkeletonLoader.vue';
+
+    const analysisStore = useAnalysisStore();
+    const { t } = useI18n();
+    const { isLoading, summary } = storeToRefs(analysisStore);
+
+    const normalizedSummary = computed(() => {
+        const text = String(summary.value?.content || '').trim();
+        return text || t('aiSummary.loading');
     });
 
-    const summaryText = computed(() => {
-        const { positive, negative, toxic, total } = props.stats;
-        if (!total) return 'Нет данных для анализа.';
-
-        const positivePercent = Math.round((positive / total) * 100);
-
-        if (positivePercent > 70) {
-            return `Аудитория настроена крайне лояльно (${positivePercent}% позитива). Рекомендуется поддерживать вовлеченность.`;
-        } else if (negative > positive) {
-            return `Внимание! Количество негативных отзывов преобладает. Рекомендуется проанализировать причины недовольства.`;
-        } else if (toxic > 0) {
-            return `Обнаружено ${toxic} токсичных комментариев. Рекомендуется очистка чата для предотвращения конфликтов.`;
-        }
-        return 'Тональность комментариев стабильна, аномалий не обнаружено.';
+    const normalizedKeyPoints = computed(() => {
+        const list = Array.isArray(summary.value?.keyPoints)
+            ? summary.value.keyPoints
+            : [];
+        return list
+            .map((item) => String(item || '').trim())
+            .filter(Boolean)
+            .slice(0, 4);
     });
 </script>
 
 <template>
-    <div
-        class="from-blue-50 to-white border-l-4 border-blue-500 p-6 rounded-r-2xl shadow-sm">
-        <div class="flex items-start gap-4">
-            <span class="text-4xl">💡</span>
-            <div>
-                <h4
-                    class="font-bold text-blue-900 text-xs uppercase tracking-wider mb-1">
-                    AI Insights (Заключение системы):
-                </h4>
-                <p class="text-blue-900 text-lg leading-relaxed font-medium">
-                    {{ summaryText }}
-                </p>
-            </div>
+    <section
+        class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <h3 class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400">
+            {{ t('aiSummary.title') }}
+        </h3>
+
+        <div
+            v-if="isLoading"
+            class="space-y-3">
+            <SkeletonLoader />
         </div>
-    </div>
+
+        <div v-else class="space-y-4">
+            <p class="text-lg font-medium leading-relaxed text-gray-900 dark:text-gray-100">
+                {{ normalizedSummary }}
+            </p>
+
+            <ul
+                v-if="normalizedKeyPoints.length > 0"
+                class="space-y-2">
+                <li
+                    v-for="(point, index) in normalizedKeyPoints"
+                    :key="`${index}-${point}`"
+                    class="flex items-start gap-2 text-sm text-gray-900 dark:text-gray-100">
+                    <span class="mt-0.5 text-blue-500">✦</span>
+                    <span>{{ point }}</span>
+                </li>
+            </ul>
+        </div>
+    </section>
 </template>

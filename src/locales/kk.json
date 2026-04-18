@@ -1,0 +1,63 @@
+{
+    "common": {
+        "history": "Тарих",
+        "logout": "Шығу",
+        "insights": "Инсайттар",
+        "loading": "Жүктелуде..."
+    },
+    "dashboard": {
+        "title": "MoodScope",
+        "subtitle": "Аудитория реакциясын секунд ішінде талдаңыз",
+        "enterLink": "Сілтемені енгізіңіз",
+        "linkPlaceholder": "Telegram / YouTube жазбасының сілтемесін қойыңыз",
+        "startAnalysis": "Талдауды бастау",
+        "analyzing": "Талданып жатыр...",
+        "recentAnalyses": "Соңғы талдаулар",
+        "historyEmpty": "Тарих әзірге бос",
+        "fastMode": "Жылдам режим",
+        "deepMode": "Терең режим",
+        "progressDefault": "Gemini пікірлерді талдап жатыр...",
+        "progressRatioTitle": "Жалпы қатынас",
+        "trendTitle": "Уақыт бойынша көңіл-күй динамикасы",
+        "reactionsTitle": "Жазбаға реакциялар",
+        "analysisSuccess": "Талдау сәтті аяқталды!",
+        "invalidLinkError": "Жазба сілтемесін енгізіңіз",
+        "analysisError": "Талдау қатесі"
+    },
+    "historyView": {
+        "title": "Талдау тарихы",
+        "back": "Басты бетке",
+        "empty": "Тарих әзірге бос",
+        "comments": "Пікірлер",
+        "positive": "Позитив",
+        "negative": "Негатив"
+    },
+    "login": {
+        "title": "Кіру",
+        "subtitle": "MoodScope жүйесіне кіріңіз",
+        "subtitleRegister": "MoodScope аккаунтын жасаңыз",
+        "email": "Email",
+        "password": "Құпиясөз",
+        "name": "Аты",
+        "namePlaceholder": "Атыңыз",
+        "confirmPassword": "Құпиясөзді растау",
+        "confirmPasswordPlaceholder": "Құпиясөзді қайта енгізіңіз",
+        "emailPlaceholder": "user{'@'}example.com",
+        "passwordPlaceholder": "Құпиясөзді енгізіңіз",
+        "submit": "Кіру",
+        "submitRegister": "Аккаунт жасау",
+        "loading": "Кіру...",
+        "loadingRegister": "Тіркелу...",
+        "error": "Кіру мүмкін болмады",
+        "errorRegister": "Тіркелу мүмкін болмады",
+        "switchToRegister": "Аккаунтыңыз жоқ па? Тіркелу",
+        "switchToLogin": "Аккаунтыңыз бар ма? Кіру",
+        "passwordMismatch": "Құпиясөздер сәйкес келмейді",
+        "registerSuccess": "Тіркелу сәтті аяқталды! Енді кіріңіз."
+    },
+    "aiSummary": {
+        "title": "Gemini интеллектуалды конспектісі",
+        "loading": "Gemini интеллектуалды конспект дайындап жатыр...",
+        "fallback": "Талдау аяқталғаннан кейін қорытынды шығады."
+    }
+}

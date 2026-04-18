@@ -1,87 +1,57 @@
 <script setup>
-    import { ref } from 'vue';
+    import { computed, onMounted, onUnmounted, ref } from 'vue';
     import { useAuthStore } from '@/store/auth';
     import { useAnalysisStore } from '@/store/analysis';
     import { storeToRefs } from 'pinia';
-    import api from '@/api';
+    import { useI18n } from 'vue-i18n';
     import { useNotifications } from '@/composables/useNotifications';
-    import HistorySidebar from '@/components/analysis/HistorySidebar.vue';
+    import ThemeToggle from '@/components/ThemeToggle.vue';
+    import LanguageSelector from '@/components/LanguageSelector.vue';
     import StatsCards from '@/components/analysis/StatsCards.vue';
     import AiSummary from '@/components/analysis/AiSummary.vue';
     import KeywordCloud from '@/components/analysis/KeywordCloud.vue';
     import CommentsTable from '@/components/analysis/CommentsTable.vue';
     import SentimentChart from '@/components/SentimentChart.vue';
     import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue';
-    import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
     const auth = useAuthStore();
     const analysisStore = useAnalysisStore();
-    const { results, isLoading } = storeToRefs(analysisStore);
+    const { t } = useI18n();
+    const { results, isLoading, analysisProgress, analysisStatus, history } =
+        storeToRefs(analysisStore);
     const { toast, showNotify } = useNotifications();
 
     const form = ref({
-        phoneNumber: '+77714594458',
-        postLink: 'https://t.me/petya_english/5478',
-        platform: 'telegram',
+        url: 'https://t.me/petya_english/5478',
+        mode: 'fast',
     });
-
-    const codeSent = ref(false);
-    const verificationCode = ref('');
-
     const searchQuery = ref('');
     const filterSentiment = ref('all');
 
-    const sendTGCode = async () => {
-        try {
-            if (!form.value.phoneNumber)
-                return showNotify('Введите номер телефона', 'error');
-            await api.post('/social/send-code', {
-                phoneNumber: form.value.phoneNumber,
-                platform: 'telegram',
-            });
-            codeSent.value = true;
-            showNotify('Код отправлен!', 'success');
-        } catch (e) {
-            showNotify(e.response?.data?.message || 'Ошибка отправки', 'error');
-        }
-    };
+    const hasStartedAnalysis = computed(
+        () => isLoading.value || Boolean(results.value),
+    );
+    const recentHistory = computed(() => history.value.slice(0, 3));
 
-    const verifyTGCode = async () => {
-        try {
-            if (!verificationCode.value)
-                return showNotify('Введите код', 'error');
-            await api.post('/social/verify', {
-                phoneNumber: form.value.phoneNumber,
-                code: verificationCode.value,
-                platform: 'telegram',
-            });
-            showNotify('Успешно подключено!', 'success');
-            codeSent.value = false;
-            verificationCode.value = '';
-        } catch (e) {
-            showNotify(e.response?.data?.message || 'Неверный код', 'error');
+    onMounted(() => {
+        if (history.value.length === 0) {
+            analysisStore.fetchHistory();
         }
-    };
+    });
 
     const startAnalysis = async () => {
-        if (!form.value.postLink)
-            return showNotify('Введите ссылку на пост', 'error');
+        if (!form.value.url)
+            return showNotify(t('dashboard.invalidLinkError'), 'error');
 
         searchQuery.value = '';
         filterSentiment.value = 'all';
 
         try {
-            const start = Date.now();
             await analysisStore.fetchAnalysis(form.value);
-
-            const serverTime = results.value.executionTime
-                ? (results.value.executionTime / 1000).toFixed(1)
-                : ((Date.now() - start) / 1000).toFixed(1);
-
-            showNotify(`Готово! Обработано за ${serverTime} сек. ⏱`, 'success');
+            showNotify(t('dashboard.analysisSuccess'), 'success');
             analysisStore.fetchHistory();
         } catch (e) {
-            showNotify('Ошибка при анализе', 'error');
+            showNotify(analysisStore.error || t('dashboard.analysisError'), 'error');
         }
     };
 
@@ -89,191 +59,227 @@
         searchQuery.value = word;
         if (word) {
             const tableElement = document.getElementById('comments-table');
-            if (tableElement)
-                tableElement.scrollIntoView({
-                    behavior: 'smooth',
-                });
+            if (tableElement) {
+                tableElement.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     };
+
+    onUnmounted(() => {
+        analysisStore.clearPollingTimer();
+    });
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-gray-100 font-sans">
-        <HistorySidebar />
-        <main class="flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
-            <nav
-                class="z-20 flex shrink-0 items-center justify-between bg-white px-8 py-4 shadow-md">
-                <h1
-                    class="text-xl font-bold text-blue-700 tracking-tight uppercase">
-                    Social Analyzer
-                    <span class="text-gray-400 font-normal text-sm ml-2"
-                        >v2.0</span
-                    >
-                </h1>
-                <button
-                    @click="auth.logout()"
-                    class="rounded-none border border-red-500 px-4 py-2 text-sm font-bold uppercase tracking-wider text-red-600 transition hover:bg-red-50 focus:ring-2 focus:ring-red-200">
-                    Выйти
-                </button>
-            </nav>
+    <div
+        id="main-content"
+        class="h-screen overflow-y-auto bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+        <div class="mx-auto max-w-7xl px-6">
+            <div class="flex justify-end py-8">
+                <div class="flex items-center gap-3">
+                    <LanguageSelector />
+                    <ThemeToggle />
+                    <RouterLink
+                        to="/history"
+                        class="rounded-full bg-gray-100 p-3 text-gray-600 transition hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                        :title="t('common.history')">
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 5h18M3 12h18M3 19h18"></path>
+                        </svg>
+                    </RouterLink>
+                    <button
+                        @click="auth.logout()"
+                        class="rounded-full bg-gray-100 p-3 text-gray-600 transition hover:bg-red-50 hover:text-red-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-red-900/40 dark:hover:text-red-300"
+                        :title="t('common.logout')">
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
             <div
-                class="flex-1 overflow-y-auto p-4 md:p-8"
-                id="main-content">
-                <div class="mx-auto max-w-6xl space-y-8 pb-20">
+                :class="
+                    hasStartedAnalysis
+                        ? 'pb-10'
+                        : 'flex min-h-[calc(100vh-6rem)] items-center justify-center pb-10'
+                ">
+                <transition name="search-shift" mode="out-in">
                     <div
-                        v-if="!results && !isLoading"
-                        class="animate-fade-in rounded-none border-t-4 border-yellow-500 bg-white p-8 shadow-md">
-                        <h2
-                            class="mb-2 text-xl font-bold text-gray-800 uppercase tracking-wide">
-                            Шаг 1: Подключение
-                        </h2>
-                        <p class="mb-6 text-sm text-gray-600">
-                            Введите номер телефона для доступа к API Telegram.
+                        :key="hasStartedAnalysis ? 'compact' : 'centered'"
+                        :class="
+                            hasStartedAnalysis
+                                ? 'mx-auto mt-2 w-full max-w-3xl'
+                                : 'mx-auto w-full max-w-3xl'
+                        ">
+                    <div class="text-center">
+                        <h1
+                            class="text-5xl font-semibold tracking-tight text-gray-700 dark:text-gray-100">
+                            {{ t('dashboard.title') }}
+                        </h1>
+                        <p
+                            v-if="!hasStartedAnalysis"
+                            class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            {{ t('dashboard.subtitle') }}
                         </p>
-
-                        <div class="flex max-w-md flex-wrap gap-4">
-                            <input
-                                v-model="form.phoneNumber"
-                                placeholder="+7 777 ..."
-                                class="flex-1 rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-yellow-500 focus:bg-white focus:ring-1 focus:ring-yellow-500" />
-                            <button
-                                @click="sendTGCode"
-                                class="rounded-none bg-yellow-500 px-6 py-2 font-bold uppercase tracking-wider text-white shadow transition hover:bg-yellow-600 hover:shadow-md active:translate-y-px">
-                                Выслать код
-                            </button>
-                        </div>
-
-                        <div
-                            v-if="codeSent"
-                            class="animate-fade-in mt-6 flex max-w-md flex-wrap gap-4">
-                            <input
-                                v-model="verificationCode"
-                                placeholder="Код из SMS"
-                                class="flex-1 rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-black focus:bg-white focus:ring-1 focus:ring-black" />
-                            <button
-                                @click="verifyTGCode"
-                                class="rounded-none bg-gray-900 px-6 py-2 font-bold uppercase tracking-wider text-white shadow transition hover:bg-black hover:shadow-md active:translate-y-px">
-                                Подтвердить
-                            </button>
-                        </div>
                     </div>
 
+                    <p class="mt-8 mb-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                        {{ t('dashboard.enterLink') }}
+                    </p>
+
                     <div
-                        class="rounded-none bg-white p-6 shadow-md md:p-8 border-t-4 border-blue-600">
-                        <h2
-                            class="mb-6 text-xl font-bold text-gray-800 uppercase tracking-wide">
-                            Новый анализ
-                        </h2>
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        class="rounded-full bg-white p-2 shadow-[0_20px_55px_-26px_rgba(15,23,42,0.35)] dark:bg-gray-800 dark:shadow-[0_26px_70px_-34px_rgba(2,6,23,0.75)]">
+                        <div class="flex flex-col gap-3 md:flex-row">
                             <input
-                                v-model="form.phoneNumber"
-                                placeholder="Ваш номер"
-                                class="rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600" />
-                            <input
-                                v-model="form.postLink"
-                                placeholder="Ссылка на пост"
-                                class="rounded-none border border-gray-400 bg-gray-50 p-3 outline-none transition focus:border-blue-600 focus:bg-white focus:ring-1 focus:ring-blue-600" />
+                                v-model="form.url"
+                                :placeholder="t('dashboard.linkPlaceholder')"
+                                class="w-full rounded-full border border-gray-200 bg-gray-50 px-6 py-4 text-base text-gray-900 outline-none transition focus:bg-white focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:ring-blue-400/20" />
+                            <select
+                                v-model="form.mode"
+                                class="rounded-full border border-gray-200 bg-gray-100 px-5 py-3 text-sm font-medium text-gray-900 outline-none transition focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:focus:ring-blue-400/20">
+                                <option value="fast">{{ t('dashboard.fastMode') }}</option>
+                                <option value="deep">{{ t('dashboard.deepMode') }}</option>
+                            </select>
                             <button
                                 @click="startAnalysis"
                                 :disabled="isLoading"
-                                class="flex items-center justify-center gap-2 rounded-none bg-blue-600 font-bold uppercase tracking-wider text-white shadow transition hover:bg-blue-700 hover:shadow-md disabled:opacity-50 disabled:shadow-none">
+                                class="rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">
                                 {{
-                                    isLoading ? 'Обработка...' : 'Анализировать'
+                                    isLoading
+                                        ? analysisStatus || t('dashboard.analyzing')
+                                        : t('dashboard.startAnalysis')
                                 }}
                             </button>
                         </div>
                     </div>
 
-                    <LoadingSpinner v-if="isLoading" />
-
                     <div
-                        v-if="results"
-                        class="animate-fade-in space-y-6">
-                        <div class="rounded-none shadow-md bg-white">
-                            <AiSummary :stats="results.stats" />
-                        </div>
-
-                        <div class="rounded-none shadow-md bg-white p-4">
-                            <KeywordCloud
-                                :comments="results.comments"
-                                :activeKeyword="searchQuery"
-                                @select="handleKeywordSelect" />
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                            <div class="space-y-6 lg:col-span-2">
-                                <div
-                                    v-if="
-                                        results.reactions &&
-                                        results.reactions.length > 0
-                                    "
-                                    class="animate-fade-in rounded-none bg-white p-6 shadow-md">
-                                    <h3
-                                        class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase border-b pb-2">
-                                        Реакции на пост
-                                    </h3>
-                                    <div class="flex flex-wrap gap-3">
-                                        <div
-                                            v-for="(
-                                                react, index
-                                            ) in results.reactions"
-                                            :key="index"
-                                            class="flex cursor-default items-center gap-2 rounded-none border border-gray-300 bg-gray-50 px-4 py-2 transition-colors hover:bg-gray-100 hover:shadow-sm">
-                                            <span class="text-xl">{{
-                                                react.emoji
-                                            }}</span>
-                                            <span
-                                                class="text-sm font-bold text-gray-700"
-                                                >{{ react.count }}</span
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <StatsCards
-                                    :stats="results.stats"
-                                    class="rounded-none shadow-md" />
-                            </div>
-
-                            <div
-                                class="relative flex flex-col items-center justify-center rounded-none bg-white p-6 shadow-md">
-                                <h3
-                                    class="absolute top-6 left-6 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                                    Общее соотношение
-                                </h3>
-                                <div class="mt-4 h-64 w-full">
-                                    <SentimentChart :stats="results.stats" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-none bg-white p-6 shadow-md">
-                            <div
-                                class="mb-6 flex items-center justify-between border-b pb-2">
-                                <h3
-                                    class="text-xs font-bold tracking-widest text-gray-500 uppercase">
-                                    📈 Динамика настроения по времени
-                                </h3>
-                            </div>
-                            <div class="h-80 w-full">
-                                <SentimentTrendChart
-                                    :comments="results.comments" />
-                            </div>
-                        </div>
-
-                        <div
-                            id="comments-table"
-                            class="rounded-none shadow-md bg-white">
-                            <CommentsTable
-                                :comments="results.comments"
-                                v-model:searchQuery="searchQuery"
-                                v-model:filterSentiment="filterSentiment" />
+                        v-if="!hasStartedAnalysis"
+                        class="mt-8">
+                        <p class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+                            {{ t('dashboard.recentAnalyses') }}
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                v-for="item in recentHistory"
+                                :key="item._id"
+                                @click="analysisStore.loadFromHistory(item._id)"
+                                class="max-w-full truncate rounded-full bg-gray-100 px-4 py-2 text-xs text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                                {{ item.postLink }}
+                            </button>
+                            <p
+                                v-if="recentHistory.length === 0"
+                                class="text-xs text-gray-400 dark:text-gray-500">
+                                {{ t('dashboard.historyEmpty') }}
+                            </p>
                         </div>
                     </div>
                 </div>
+                </transition>
             </div>
-        </main>
+
+            <div
+                v-if="hasStartedAnalysis"
+                class="mx-auto mt-2 max-w-7xl space-y-8 pb-16">
+                <div
+                    v-if="isLoading"
+                    class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <p class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ analysisStatus || t('dashboard.progressDefault') }}
+                    </p>
+                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                        <div
+                            class="h-full rounded-full bg-blue-500 transition-all duration-500 ease-out"
+                            :style="{ width: `${analysisProgress}%` }"></div>
+                    </div>
+                </div>
+
+                <AiSummary v-if="isLoading || results" />
+
+                <div
+                    v-if="results"
+                    class="space-y-8">
+                    <StatsCards
+                        :stats="results.stats"
+                        class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" />
+
+                    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                        <div class="space-y-8 lg:col-span-2">
+                            <div
+                                v-if="
+                                    results.reactions &&
+                                    results.reactions.length > 0
+                                "
+                                class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                                <h3 class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400">
+                                    {{ t('dashboard.reactionsTitle') }}
+                                </h3>
+                                <div class="flex flex-wrap gap-3">
+                                    <div
+                                        v-for="(react, index) in results.reactions"
+                                        :key="index"
+                                        class="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 dark:bg-gray-800">
+                                        <span class="text-xl">{{ react.emoji }}</span>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ react.count }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                                <KeywordCloud
+                                    :comments="results.comments"
+                                    :activeKeyword="searchQuery"
+                                    @select="handleKeywordSelect" />
+                            </div>
+                        </div>
+
+                        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                            <h3 class="mb-4 text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
+                                {{ t('dashboard.progressRatioTitle') }}
+                            </h3>
+                            <div class="h-64 w-full">
+                                <SentimentChart :stats="results.stats" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h3 class="mb-6 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400">
+                            {{ t('dashboard.trendTitle') }}
+                        </h3>
+                        <div class="h-80 w-full">
+                            <SentimentTrendChart :comments="results.comments" />
+                        </div>
+                    </div>
+
+                    <div
+                        id="comments-table"
+                        class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <CommentsTable
+                            :comments="results.comments"
+                            v-model:searchQuery="searchQuery"
+                            v-model:filterSentiment="filterSentiment" />
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <transition name="slide-fade">
             <div
@@ -283,7 +289,7 @@
                     'bg-green-700': toast.type === 'success',
                     'bg-blue-700': toast.type === 'info',
                 }"
-                class="fixed right-0 bottom-0 z-50 m-6 flex min-w-[300px] cursor-pointer items-center gap-4 rounded-none px-6 py-4 text-white shadow-xl transition-all border-l-4 border-white/20"
+                class="fixed right-0 bottom-0 z-50 m-6 flex min-w-[300px] cursor-pointer items-center gap-4 rounded-3xl border border-white/20 px-6 py-4 text-white shadow-xl transition-all"
                 @click="toast.show = false">
                 <span class="text-xl font-bold">{{
                     toast.type === 'error' ? '!' : 'i'
@@ -322,5 +328,16 @@
     .slide-fade-leave-to {
         transform: translateX(100px);
         opacity: 0;
+    }
+
+    .search-shift-enter-active,
+    .search-shift-leave-active {
+        transition: all 0.4s ease;
+    }
+
+    .search-shift-enter-from,
+    .search-shift-leave-to {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
     }
 </style>

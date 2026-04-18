@@ -8,14 +8,15 @@ const routes = [
         component: () => import('@/views/Login.vue'),
     },
     {
-        path: '/register',
-        name: 'Register',
-        component: () => import('@/views/Register.vue'),
-    },
-    {
         path: '/',
         name: 'Dashboard',
         component: () => import('@/views/Dashboard.vue'),
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/history',
+        name: 'History',
+        component: () => import('@/views/History.vue'),
         meta: { requiresAuth: true },
     },
 ];

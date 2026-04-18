@@ -1,10 +1,8 @@
 <script setup>
     import { ref, computed } from 'vue';
     import { useAuthStore } from '@/store/auth';
-    import { useUiStore } from '@/store/ui';
 
     const auth = useAuthStore();
-    const uiStore = useUiStore();
 
     const isProfileOpen = ref(false);
     const currentLang = ref('RU');
@@ -28,24 +26,8 @@
 
 <template>
     <nav
-        class="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6 lg:px-8">
+        class="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6 lg:px-8 dark:border-gray-700 dark:bg-gray-900">
         <div class="flex items-center gap-4">
-            <button
-                @click="uiStore.toggleHistory()"
-                class="mr-2 p-2 text-gray-500 hover:bg-gray-100 rounded-md transition hover:text-blue-700"
-                title="Открыть историю">
-                <svg
-                    class="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 6h16M4 12h16M4 18h7"></path>
-                </svg>
-            </button>
             <h1
                 class="text-xl font-bold text-blue-700 tracking-tight uppercase flex items-center gap-2">
                 Social Analyzer

@@ -1,0 +1,63 @@
+{
+    "common": {
+        "history": "History",
+        "logout": "Log out",
+        "insights": "Insights",
+        "loading": "Loading..."
+    },
+    "dashboard": {
+        "title": "MoodScope",
+        "subtitle": "Analyze audience sentiment in seconds",
+        "enterLink": "Enter a link",
+        "linkPlaceholder": "Paste Telegram / YouTube post link",
+        "startAnalysis": "Start analysis",
+        "analyzing": "Analyzing...",
+        "recentAnalyses": "Recent analyses",
+        "historyEmpty": "History is empty",
+        "fastMode": "Fast mode",
+        "deepMode": "Deep mode",
+        "progressDefault": "Gemini is analyzing comments...",
+        "progressRatioTitle": "Overall ratio",
+        "trendTitle": "Sentiment trend over time",
+        "reactionsTitle": "Post reactions",
+        "analysisSuccess": "Analysis completed successfully!",
+        "invalidLinkError": "Enter a post link",
+        "analysisError": "Analysis failed"
+    },
+    "historyView": {
+        "title": "Analysis history",
+        "back": "Back to dashboard",
+        "empty": "History is empty",
+        "comments": "Comments",
+        "positive": "Positive",
+        "negative": "Negative"
+    },
+    "login": {
+        "title": "Sign in",
+        "subtitle": "Sign in to MoodScope",
+        "subtitleRegister": "Create your MoodScope account",
+        "email": "Email",
+        "password": "Password",
+        "name": "Name",
+        "namePlaceholder": "Your name",
+        "confirmPassword": "Confirm password",
+        "confirmPasswordPlaceholder": "Repeat password",
+        "emailPlaceholder": "user{'@'}example.com",
+        "passwordPlaceholder": "Enter password",
+        "submit": "Sign in",
+        "submitRegister": "Create account",
+        "loading": "Signing in...",
+        "loadingRegister": "Creating account...",
+        "error": "Unable to sign in",
+        "errorRegister": "Unable to register",
+        "switchToRegister": "No account? Register",
+        "switchToLogin": "Already have an account? Sign in",
+        "passwordMismatch": "Passwords do not match",
+        "registerSuccess": "Registration successful! Please sign in."
+    },
+    "aiSummary": {
+        "title": "Gemini intelligent brief",
+        "loading": "Gemini is preparing the intelligent brief...",
+        "fallback": "The summary will appear after analysis completes."
+    }
+}

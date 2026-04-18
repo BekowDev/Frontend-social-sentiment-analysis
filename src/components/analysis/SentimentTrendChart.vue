@@ -91,6 +91,8 @@
             })
             .filter(Boolean);
 
+        rawData.sort((a, b) => a.ts - b.ts);
+
         if (rawData.length === 0) return { labels: [], datasets: [] };
 
         const buckets = {};
@@ -181,6 +183,7 @@
                     usePointStyle: true,
                     pointStyle: 'rect', // Квадратная легенда
                     boxWidth: 10,
+                    color: '#6b7280',
                 },
             },
             tooltip: {
@@ -218,12 +221,23 @@
         scales: {
             x: {
                 grid: { display: false },
-                ticks: { maxTicksLimit: 10 },
+                ticks: {
+                    maxTicksLimit: 10,
+                    color: '#6b7280',
+                },
             },
             y: {
                 beginAtZero: true,
-                grid: { color: '#f3f4f6' },
-                ticks: { stepSize: 1 },
+                grid: {
+                    color: () =>
+                        document.documentElement.classList.contains('dark')
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(15, 23, 42, 0.08)',
+                },
+                ticks: {
+                    stepSize: 1,
+                    color: '#6b7280',
+                },
             },
         },
         interaction: {
@@ -237,23 +251,23 @@
 <template>
     <div class="flex flex-col h-full w-full relative group">
         <div
-            class="flex flex-wrap gap-2 mb-4 justify-between items-center border-b border-gray-100 pb-2">
+            class="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2 dark:border-gray-700">
             <div
-                class="text-xs font-bold text-gray-400 uppercase tracking-widest hidden sm:block">
+                class="hidden text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 sm:block">
                 Группировка
             </div>
 
             <div
-                class="flex gap-0 overflow-x-auto no-scrollbar border border-gray-200 bg-gray-50">
+                class="no-scrollbar flex overflow-x-auto rounded-full border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-700">
                 <button
                     v-for="frame in frames"
                     :key="frame.label"
                     @click="setFrame(frame.value)"
-                    class="text-[10px] uppercase font-bold px-4 py-2 transition-all border-r last:border-r-0 border-gray-200 whitespace-nowrap focus:outline-none"
+                    class="whitespace-nowrap border-r border-gray-200 px-4 py-2 text-[10px] font-bold uppercase transition-all last:border-r-0 focus:outline-none dark:border-gray-600"
                     :class="[
                         activeFrame === frame.value
                             ? 'bg-blue-600 text-white shadow-inner'
-                            : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-blue-600',
+                            : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-blue-300',
                     ]">
                     {{ frame.label }}
                 </button>
@@ -268,9 +282,9 @@
 
             <div
                 v-if="chartData.labels.length === 0"
-                class="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-[2px] z-10 rounded-none">
+                class="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-white/80 backdrop-blur-[2px] dark:bg-gray-800/80">
                 <p
-                    class="text-sm text-gray-500 font-bold uppercase tracking-wide">
+                    class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Нет данных
                 </p>
             </div>

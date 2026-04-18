@@ -13,4 +13,11 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+export const startAnalysis = (payload) => api.post('/social/analyze', payload);
+
+export const getAnalysisTaskStatus = (taskId) =>
+    api.get(`/social/task/${taskId}`);
+
+export const checkTaskStatus = getAnalysisTaskStatus;
+
 export default api;

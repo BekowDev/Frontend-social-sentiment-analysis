@@ -12,6 +12,22 @@ export const useAuthStore = defineStore('auth', {
     },
 
     actions: {
+        async register({ name, email, password }) {
+            try {
+                await api.post('/auth/register', {
+                    name,
+                    email,
+                    password,
+                });
+                return true;
+            } catch (error) {
+                console.error(
+                    'Ошибка регистрации:',
+                    error.response?.data?.message,
+                );
+                throw error;
+            }
+        },
         async login(email, password) {
             try {
                 const { data } = await api.post('/auth/login', {

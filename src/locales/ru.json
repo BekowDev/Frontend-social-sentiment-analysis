@@ -1,0 +1,63 @@
+{
+    "common": {
+        "history": "История",
+        "logout": "Выйти",
+        "insights": "Инсайты",
+        "loading": "Загрузка..."
+    },
+    "dashboard": {
+        "title": "MoodScope",
+        "subtitle": "Анализируйте реакцию аудитории за секунды",
+        "enterLink": "Введите ссылку",
+        "linkPlaceholder": "Вставьте ссылку на пост Telegram / YouTube",
+        "startAnalysis": "Начать анализ",
+        "analyzing": "Анализируется...",
+        "recentAnalyses": "Последние анализы",
+        "historyEmpty": "История пока пуста",
+        "fastMode": "Быстрый режим",
+        "deepMode": "Глубокий режим",
+        "progressDefault": "Идет анализ комментариев через Gemini...",
+        "progressRatioTitle": "Общее соотношение",
+        "trendTitle": "Динамика настроения по времени",
+        "reactionsTitle": "Реакции на пост",
+        "analysisSuccess": "Анализ успешно завершен!",
+        "invalidLinkError": "Введите ссылку на пост",
+        "analysisError": "Ошибка при анализе"
+    },
+    "historyView": {
+        "title": "История анализов",
+        "back": "На главную",
+        "empty": "История пока пуста",
+        "comments": "Комментариев",
+        "positive": "Позитив",
+        "negative": "Негатив"
+    },
+    "login": {
+        "title": "Вход",
+        "subtitle": "Войдите в MoodScope",
+        "subtitleRegister": "Создайте аккаунт MoodScope",
+        "email": "Email",
+        "password": "Пароль",
+        "name": "Имя",
+        "namePlaceholder": "Ваше имя",
+        "confirmPassword": "Подтвердите пароль",
+        "confirmPasswordPlaceholder": "Повторите пароль",
+        "emailPlaceholder": "user{'@'}example.com",
+        "passwordPlaceholder": "Введите пароль",
+        "submit": "Войти",
+        "submitRegister": "Создать аккаунт",
+        "loading": "Вход...",
+        "loadingRegister": "Регистрация...",
+        "error": "Не удалось войти",
+        "errorRegister": "Не удалось зарегистрироваться",
+        "switchToRegister": "Нет аккаунта? Зарегистрироваться",
+        "switchToLogin": "Уже есть аккаунт? Войти",
+        "passwordMismatch": "Пароли не совпадают",
+        "registerSuccess": "Регистрация успешна! Теперь войдите."
+    },
+    "aiSummary": {
+        "title": "Интеллектуальный конспект Gemini",
+        "loading": "Gemini подготавливает интеллектуальный конспект...",
+        "fallback": "Результат будет доступен после завершения анализа."
+    }
+}

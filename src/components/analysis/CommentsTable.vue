@@ -52,22 +52,22 @@
 
 <template>
     <div
-        class="bg-white rounded-none shadow-md border-t-4 border-blue-600 overflow-hidden">
+        class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div
-            class="p-4 border-b border-gray-200 bg-white flex flex-wrap gap-4 items-center justify-between">
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
             <div class="flex gap-3 flex-1 flex-wrap md:flex-nowrap">
                 <input
                     :value="searchQuery"
                     @input="emit('update:searchQuery', $event.target.value)"
                     placeholder="🔍 Поиск по тексту..."
-                    class="border border-gray-300 bg-gray-50 p-2.5 rounded-none text-sm w-full md:max-w-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600 focus:bg-white outline-none transition-colors" />
+                    class="w-full rounded-full border border-gray-200 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none transition md:max-w-xs focus:border-transparent focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:focus:ring-blue-400/20" />
 
                 <select
                     :value="filterSentiment"
                     @change="
                         emit('update:filterSentiment', $event.target.value)
                     "
-                    class="border border-gray-300 bg-gray-50 p-2.5 rounded-none text-sm outline-none cursor-pointer focus:ring-1 focus:ring-blue-600 focus:border-blue-600 hover:bg-white transition-colors">
+                    class="cursor-pointer rounded-full border border-gray-200 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none transition hover:bg-white focus:border-transparent focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 dark:focus:ring-blue-400/20">
                     <option value="all">Все тональности</option>
                     <option value="positive">🟢 Только позитив</option>
                     <option value="negative">🔴 Только негатив</option>
@@ -78,41 +78,41 @@
 
             <button
                 @click="handleExport"
-                class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-none text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition shadow-sm hover:shadow-md active:translate-y-px">
+                class="flex items-center gap-2 rounded-full bg-green-600 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-green-700 hover:shadow-md active:translate-y-px">
                 <span>📥</span> Excel
             </button>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="custom-scrollbar overflow-x-auto">
             <table class="w-full text-left border-collapse">
-                <thead class="bg-gray-50 border-b border-gray-200">
+                <thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
                     <tr>
                         <th
-                            class="p-5 text-xs font-bold text-gray-500 uppercase tracking-widest border-r border-gray-100">
+                            class="border-r border-gray-200 p-5 text-xs font-bold uppercase tracking-widest text-gray-500 dark:border-gray-700 dark:text-gray-400">
                             Автор
                         </th>
                         <th
-                            class="p-5 text-xs font-bold text-gray-500 uppercase tracking-widest w-1/2 border-r border-gray-100">
+                            class="w-1/2 border-r border-gray-200 p-5 text-xs font-bold uppercase tracking-widest text-gray-500 dark:border-gray-700 dark:text-gray-400">
                             Комментарий
                         </th>
                         <th
-                            class="p-5 text-xs font-bold text-gray-500 uppercase tracking-widest text-center">
+                            class="p-5 text-center text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                             Анализ ИИ
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     <tr
                         v-for="c in filteredComments"
                         :key="c.comment_id"
-                        class="hover:bg-blue-50/50 transition-colors group">
+                        class="group transition-colors odd:bg-white even:bg-gray-50/70 hover:bg-blue-50/70 dark:odd:bg-gray-800 dark:even:bg-gray-800/50 dark:hover:bg-gray-700/60">
                         <td
-                            class="p-5 font-bold text-sm text-gray-800 border-r border-gray-50">
+                            class="border-r border-gray-200 p-5 text-sm font-bold text-gray-900 dark:border-gray-700 dark:text-gray-100">
                             {{ c.author_name }}
                         </td>
 
                         <td
-                            class="p-5 text-sm text-gray-600 leading-relaxed border-r border-gray-50">
+                            class="border-r border-gray-200 p-5 text-sm leading-relaxed text-gray-500 dark:border-gray-700 dark:text-gray-400">
                             <div
                                 v-html="
                                     highlightText(c.content, searchQuery)
@@ -132,16 +132,16 @@
                                         'text-gray-800 bg-gray-100 border-gray-200':
                                             c.analysis?.sentiment === 'neutral',
                                     }"
-                                    class="px-3 py-1 rounded-none text-[10px] font-bold uppercase border tracking-wider w-full text-center shadow-sm">
+                                    class="w-full rounded-full border px-3 py-1 text-center text-[10px] font-bold uppercase tracking-wider shadow-sm">
                                     {{ c.analysis?.sentiment }}
                                 </span>
 
                                 <div
-                                    class="w-full max-w-[100px] group/bar relative">
+                                    class="relative w-full max-w-[100px] group/bar">
                                     <div
-                                        class="w-full bg-gray-200 h-2 rounded-none overflow-hidden">
+                                        class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700/70">
                                         <div
-                                            class="h-full bg-blue-600 rounded-none transition-all duration-500"
+                                            class="h-full rounded-full bg-blue-600 transition-all duration-500"
                                             :style="{
                                                 width:
                                                     (c.analysis?.score || 0) *
@@ -150,7 +150,7 @@
                                             }"></div>
                                     </div>
                                     <p
-                                        class="text-[9px] text-gray-400 text-center mt-1 font-mono">
+                                        class="mt-1 text-center font-mono text-[9px] text-gray-500 dark:text-gray-400">
                                         {{
                                             Math.round(
                                                 (c.analysis?.score || 0) * 100
@@ -161,7 +161,7 @@
 
                                 <span
                                     v-if="c.analysis?.is_toxic"
-                                    class="flex items-center gap-1 text-purple-700 bg-purple-50 border border-purple-200 px-2 py-1 rounded-none text-[9px] font-bold uppercase w-full justify-center shadow-sm">
+                                    class="flex w-full items-center justify-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-1 text-[9px] font-bold uppercase text-purple-700 shadow-sm dark:border-purple-900/70 dark:bg-purple-900/20 dark:text-purple-300">
                                     ⚠️ TOXIC
                                 </span>
                             </div>
@@ -173,9 +173,9 @@
 
         <div
             v-if="filteredComments.length === 0"
-            class="p-12 text-center bg-gray-50">
-            <p class="text-4xl mb-4 text-gray-300">🔍</p>
-            <p class="text-gray-500 font-bold uppercase tracking-wide">
+            class="bg-gray-50 p-12 text-center dark:bg-gray-800">
+            <p class="mb-4 text-4xl text-gray-400 dark:text-gray-500">🔍</p>
+            <p class="font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Ничего не найдено
             </p>
             <button
@@ -183,9 +183,36 @@
                     emit('update:searchQuery', '');
                     emit('update:filterSentiment', 'all');
                 "
-                class="text-blue-600 text-xs font-bold uppercase tracking-wider mt-4 hover:text-blue-800 transition border-b border-blue-600 hover:border-blue-800 pb-0.5">
+                class="mt-4 border-b border-blue-500 pb-0.5 text-xs font-bold uppercase tracking-wider text-blue-600 transition hover:border-blue-700 hover:text-blue-700 dark:border-blue-400 dark:text-blue-300 dark:hover:border-blue-300 dark:hover:text-blue-200">
                 Сбросить фильтры
             </button>
         </div>
     </div>
 </template>
+
+<style scoped>
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 9999px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+    }
+
+    :global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #4b5563;
+    }
+
+    :global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: #6b7280;
+    }
+</style>

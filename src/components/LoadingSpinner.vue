@@ -1,3 +1,12 @@
+<script setup>
+    defineProps({
+        message: {
+            type: String,
+            default: 'ИИ анализирует...',
+        },
+    });
+</script>
+
 <template>
     <div class="flex flex-col items-center justify-center p-10">
         <div
@@ -5,7 +14,7 @@
 
         <p
             class="mt-6 text-xs font-bold text-gray-500 uppercase tracking-widest animate-pulse">
-            ИИ анализирует...
+            {{ message }}
         </p>
     </div>
 </template>
