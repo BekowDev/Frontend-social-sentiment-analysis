@@ -41,7 +41,7 @@
                 isLoading.value = false;
                 return;
             }
-            router.push('/');
+            router.push('/dashboard');
         } catch (e) {
             const fallback = isLoginMode.value
                 ? t('login.error')
@@ -69,7 +69,7 @@
                     <h1 class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
                         {{ t('login.title') }}
                     </h1>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-300">
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         {{
                             isLoginMode
                                 ? t('login.subtitle')
@@ -82,7 +82,7 @@
                     <div
                         v-if="!isLoginMode"
                         class="space-y-2">
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-300">
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
                             {{ t('login.name') }}
                         </label>
                         <input
@@ -94,7 +94,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-300">
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
                             {{ t('login.email') }}
                         </label>
                         <input
@@ -106,7 +106,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-300">
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
                             {{ t('login.password') }}
                         </label>
                         <input
@@ -120,7 +120,7 @@
                     <div
                         v-if="!isLoginMode"
                         class="space-y-2">
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-300">
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400">
                             {{ t('login.confirmPassword') }}
                         </label>
                         <input

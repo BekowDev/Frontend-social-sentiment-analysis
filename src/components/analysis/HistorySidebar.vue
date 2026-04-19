@@ -24,7 +24,7 @@
         <div
             class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6">
             <h2
-                class="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 История анализов
             </h2>
         </div>
@@ -58,7 +58,7 @@
                     {{ item.postLink }}
                 </p>
 
-                <div class="mt-1 flex gap-3 text-[10px] text-gray-500">
+                <div class="mt-1 flex gap-3 text-[10px] text-gray-500 dark:text-gray-400">
                     <span class="flex items-center gap-1">
                         💬 <b>{{ item.stats?.total || 0 }}</b>
                     </span>

@@ -65,9 +65,11 @@
 </script>
 
 <template>
-    <div class="h-64 w-full">
-        <Pie
-            :data="chartData"
-            :options="chartOptions" />
+    <div class="flex h-full w-full flex-col">
+        <div class="min-h-[200px] flex-1 flex items-center justify-center">
+            <Pie
+                :data="chartData"
+                :options="chartOptions" />
+        </div>
     </div>
 </template>

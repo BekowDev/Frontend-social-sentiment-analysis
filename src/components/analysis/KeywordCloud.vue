@@ -17,7 +17,7 @@
         if (!props.comments.length) return [];
 
         const allText = props.comments
-            .map((c) => c.content.toLowerCase())
+            .map((c) => String(c?.content || c?.text || '').toLowerCase())
             .join(' ');
         const words = allText.match(/[а-яА-ЯёЁa-zA-Z]+/g) || [];
         const stopWords = [
@@ -184,7 +184,7 @@
 <template>
     <div
         v-if="topKeywords.length"
-        class="p-2">
+        class="flex h-full flex-col p-2">
         <div class="mb-4 flex items-center justify-between">
             <h3
                 class="text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
@@ -199,7 +199,7 @@
             </button>
         </div>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-1 flex-wrap content-start gap-2">
             <button
                 v-for="item in topKeywords"
                 :key="item.word"
