@@ -3,8 +3,6 @@
     import { useI18n } from 'vue-i18n';
     import { useAuthStore } from '@/store/auth';
     import { useRouter } from 'vue-router';
-    import ThemeToggle from '@/components/ThemeToggle.vue';
-    import LanguageSelector from '@/components/LanguageSelector.vue';
 
     const isLoginMode = ref(true);
     const name = ref('');
@@ -41,7 +39,7 @@
                 isLoading.value = false;
                 return;
             }
-            router.push('/dashboard');
+            router.push({ name: 'Dashboard' });
         } catch (e) {
             const fallback = isLoginMode.value
                 ? t('login.error')
@@ -55,16 +53,17 @@
 
 <template>
     <div class="min-h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-white">
-        <div class="mx-auto flex max-w-7xl justify-end px-6 py-6">
-            <div class="flex items-center gap-3">
-                <LanguageSelector />
-                <ThemeToggle />
-            </div>
-        </div>
-
-        <div class="flex min-h-[calc(100vh-84px)] items-center justify-center px-6 pb-10">
+        <div class="flex min-h-screen items-center justify-center px-6 pb-10">
             <div
                 class="w-full max-w-md rounded-3xl bg-white p-8 shadow-lg shadow-gray-200/60 dark:bg-gray-800 dark:shadow-black/35">
+                <RouterLink
+                    :to="{ name: 'Landing' }"
+                    class="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-300"
+                >
+                    <span aria-hidden="true">←</span>
+                    <span>Назад на главную</span>
+                </RouterLink>
+
                 <div class="mb-8 text-center">
                     <h1 class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
                         {{ t('login.title') }}

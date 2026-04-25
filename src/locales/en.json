@@ -1,12 +1,13 @@
 {
     "common": {
         "history": "History",
+        "login": "Login",
         "logout": "Log out",
         "insights": "Insights",
         "loading": "Loading..."
     },
     "dashboard": {
-        "title": "MoodScope",
+        "title": "oikui",
         "subtitle": "Analyze audience sentiment in seconds",
         "enterLink": "Enter a link",
         "linkPlaceholder": "Paste Telegram / YouTube post link",
@@ -34,8 +35,8 @@
     },
     "login": {
         "title": "Sign in",
-        "subtitle": "Sign in to MoodScope",
-        "subtitleRegister": "Create your MoodScope account",
+        "subtitle": "Sign in to oikui",
+        "subtitleRegister": "Create your oikui account",
         "email": "Email",
         "password": "Password",
         "name": "Name",
@@ -59,5 +60,100 @@
         "title": "Gemini intelligent brief",
         "loading": "Gemini is preparing the intelligent brief...",
         "fallback": "The summary will appear after analysis completes."
+    },
+    "landing": {
+        "badge": "AI Sentiment Intelligence Platform",
+        "titlePrefix": "Analyze Social Media",
+        "titleAccent": "Sentiment with AI",
+        "subtitle": "oikui helps you analyze Telegram and YouTube comments, detect toxic speech, and visualize trends in a professional dashboard built for modern AI-driven decision making.",
+        "ctaStart": "Get Started",
+        "ctaDashboard": "Open Dashboard",
+        "ctaDemo": "View Demo",
+        "featuresTitle": "Why Teams Choose oikui",
+        "featuresSubtitle": "Production-ready sentiment monitoring tools for creators, analysts, and product teams.",
+        "features": {
+            "deep": {
+                "title": "Deep AI Analysis",
+                "description": "Understand sentiment, context, and intent using advanced batch AI scoring built for large comment volumes."
+            },
+            "cross": {
+                "title": "Cross-Platform (Telegram & YouTube)",
+                "description": "Aggregate conversations from Telegram channels and YouTube discussions in one clean analytics workflow."
+            },
+            "charts": {
+                "title": "Real-time Charts",
+                "description": "Track sentiment shifts with dynamic timeline charts and visual dashboards tailored for product teams."
+            },
+            "toxic": {
+                "title": "Toxic Speech Detection",
+                "description": "Identify harmful and high-risk comments early with dedicated toxicity scoring and moderation insights."
+            }
+        },
+        "aiAnalysis": {
+            "badge": "How It Works",
+            "title": "From raw comments to strategic AI insights in seconds",
+            "description": "Drop any post link, let the engine process language, tone, context, and sarcasm, then get an actionable sentiment snapshot for your team.",
+            "powered": "Powered by Gemini Pro & Multimodal AI",
+            "processing": "AI Processing...",
+            "cases": {
+                "positive": {
+                    "message": "Wow, this is the best analytics app I have ever seen! 🚀",
+                    "result": "Sentiment: Positive"
+                },
+                "neutral": {
+                    "message": "The system update was released yesterday, I am checking the new features.",
+                    "result": "Sentiment: Neutral"
+                },
+                "toxic": {
+                    "message": "Everything is lagging again, the developers clearly cannot build anything! 😡",
+                    "result": "Sentiment: Toxic / Negative"
+                },
+                "sarcasm": {
+                    "message": "I just love it when the server crashes right before a deadline, dream scenario! 😍",
+                    "result": "Sentiment: Sarcasm Detected (Negative)"
+                },
+                "dissatisfied": {
+                    "message": "Sure, your support is \"super fast\", I have only been waiting for a week.",
+                    "result": "Sentiment: Sarcasm / Dissatisfied"
+                }
+            }
+        },
+        "content": {
+            "sarcasm": {
+                "title": "Sarcasm & Nuance",
+                "description": "The model captures irony, hidden intent, and emotional nuance instead of relying on simple bad-word matching."
+            },
+            "multimodal": {
+                "title": "Multimodal Support",
+                "description": "Analyze not only text, but also video and image context to understand the full message across media formats."
+            },
+            "reasoning": {
+                "title": "AI Reasoning & Summaries",
+                "description": "Generate concise summaries, explain sentiment drivers, and receive practical recommendations for your next actions."
+            },
+            "multilingual": {
+                "title": "Multilingual Power",
+                "description": "Process 100+ languages with deep understanding, including Kazakh, Russian, and English."
+            }
+        },
+        "demo": {
+            "sentiment_label": "Sentiment",
+            "status": {
+                "positive": "Positive",
+                "neutral": "Neutral",
+                "toxic": "Toxic",
+                "sarcasm": "Sarcasm Detected",
+                "irony": "Irony / Complex Context"
+            }
+        },
+        "footer": {
+            "description": "AI for social media analysis and smarter decisions based on sentiment, context, and trends.",
+            "linksTitle": "Navigation",
+            "features": "Features",
+            "demo": "Demo",
+            "technology": "Technology",
+            "connectTitle": "Connect",
+            "github": "GitHub"
+        }
     }
 }

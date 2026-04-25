@@ -136,14 +136,6 @@ export const useAnalysisStore = defineStore('analysis', {
                     date: this.normalizeCommentDate(source.date),
                 };
             });
-            const formattedData = normalizedComments.map((comment) => ({
-                comment_id: comment.comment_id,
-                originalDate: comment.date,
-                parsedDate: new Date(comment.date).toISOString(),
-                timestamp: new Date(comment.date).getTime(),
-            }));
-            console.log('Chart Data:', formattedData);
-
             const buildStatsFromComments = (comments) => {
                 const stats = {
                     total: comments.length,

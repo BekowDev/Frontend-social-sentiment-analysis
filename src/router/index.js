@@ -34,10 +34,17 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const auth = useAuthStore();
     if (to.meta.requiresAuth && !auth.isLoggedIn) {
-        next('/login');
-    } else {
-        next();
+        next({ name: 'Login' });
+        return;
     }
+
+    const isAuthPage = to.name === 'Landing' || to.name === 'Login';
+    if (auth.isLoggedIn && isAuthPage) {
+        next({ name: 'Dashboard' });
+        return;
+    }
+
+    next();
 });
 
 export default router;

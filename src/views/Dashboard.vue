@@ -1,12 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useAuthStore } from '@/store/auth'
 import { useAnalysisStore } from '@/store/analysis'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useNotifications } from '@/composables/useNotifications'
-import ThemeToggle from '@/components/ThemeToggle.vue'
-import LanguageSelector from '@/components/LanguageSelector.vue'
 import StatsCards from '@/components/analysis/StatsCards.vue'
 import AiSummary from '@/components/analysis/AiSummary.vue'
 import KeywordCloud from '@/components/analysis/KeywordCloud.vue'
@@ -14,7 +11,6 @@ import CommentsTable from '@/components/analysis/CommentsTable.vue'
 import SentimentChart from '@/components/SentimentChart.vue'
 import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue'
 
-const auth = useAuthStore()
 const analysisStore = useAnalysisStore()
 const { t } = useI18n()
 const { results, isLoading, analysisProgress, analysisStatus, history } =
@@ -76,51 +72,6 @@ onUnmounted(() => {
         class="h-screen overflow-y-auto bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100"
     >
         <div class="mx-auto max-w-7xl px-6">
-            <div class="flex justify-end py-8">
-                <div class="flex items-center gap-3">
-                    <LanguageSelector />
-                    <ThemeToggle />
-                    <RouterLink
-                        to="/history"
-                        class="rounded-full bg-gray-100 p-3 text-gray-600 transition hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-                        :title="t('common.history')"
-                    >
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 5h18M3 12h18M3 19h18"
-                            ></path>
-                        </svg>
-                    </RouterLink>
-                    <button
-                        @click="auth.logout()"
-                        class="rounded-full bg-gray-100 p-3 text-gray-600 transition hover:bg-red-50 hover:text-red-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-red-900/40 dark:hover:text-red-300"
-                        :title="t('common.logout')"
-                    >
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                            ></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
             <div
                 :class="
                     hasStartedAnalysis

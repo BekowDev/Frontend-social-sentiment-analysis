@@ -69,7 +69,7 @@
 
     const openAnalysis = async (id) => {
         await analysisStore.loadFromHistory(id);
-        router.push('/');
+        router.push({ name: 'Dashboard' });
     };
 </script>
 
@@ -81,7 +81,7 @@
                     {{ t('historyView.title') }}
                 </h1>
                 <RouterLink
-                    to="/"
+                    :to="{ name: 'Dashboard' }"
                     class="rounded-full bg-gray-100 px-5 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
                     {{ t('historyView.back') }}
                 </RouterLink>

@@ -14,8 +14,6 @@ import {
 import { Line } from 'vue-chartjs'
 import zoomPlugin from 'chartjs-plugin-zoom'
 import 'hammerjs'
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
 
 ChartJS.register(
     CategoryScale,
@@ -74,66 +72,93 @@ const updateChartLimit = () => {
     }
 }
 
+const formatBucketLabel = (bucketTs, intervalMs) => {
+    const date = new Date(bucketTs)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
+    if (intervalMs >= 24 * 60 * 60 * 1000) {
+        return `${year}-${month}-${day}`
+    }
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`
+}
+
 const chartData = computed(() => {
     if (!props.comments || props.comments.length === 0)
         return { labels: [], datasets: [] }
 
-    const rawData = props.comments
+    const comments = Array.isArray(props.comments) ? props.comments : []
+    const interval = activeFrame.value
+
+    const validComments = comments
         .map((c) => {
-            if (!c.date) return null
-            let ts
-            if (typeof c.date === 'number') {
-                ts = c.date < 10000000000 ? c.date * 1000 : c.date
-            } else {
-                ts = new Date(c.date).getTime()
+            if (!c?.date) {
+                return null
             }
-            return isNaN(ts) ? null : { ...c, ts }
+
+            const dateObj = new Date(c.date)
+            const ts = dateObj.getTime()
+            if (Number.isNaN(ts)) {
+                return null
+            }
+            const bucketTs = Math.floor(ts / interval) * interval
+
+            return {
+                ...c,
+                ts,
+                bucketTs,
+            }
         })
         .filter(Boolean)
 
-    rawData.sort((a, b) => a.ts - b.ts)
-
-    if (rawData.length === 0) return { labels: [], datasets: [] }
+    if (validComments.length === 0) return { labels: [], datasets: [] }
 
     const buckets = {}
-    const interval = activeFrame.value
 
-    rawData.forEach((c) => {
-        const bucketTime = Math.floor(c.ts / interval) * interval
-
-        if (!buckets[bucketTime]) {
-            buckets[bucketTime] = {
+    validComments.forEach((c) => {
+        if (!buckets[c.bucketTs]) {
+            buckets[c.bucketTs] = {
+                bucketTs: c.bucketTs,
                 positive: 0,
                 negative: 0,
+                neutral: 0,
                 toxic: 0,
-                ts: bucketTime,
             }
         }
 
-        if (c.analysis?.sentiment === 'positive') buckets[bucketTime].positive++
-        if (c.analysis?.sentiment === 'negative') buckets[bucketTime].negative++
-        if (c.analysis?.is_toxic) buckets[bucketTime].toxic++
-    })
+        const sentiment = String(c.analysis?.sentiment || '').toLowerCase()
+        if (sentiment === 'positive') buckets[c.bucketTs].positive += 1
+        else if (sentiment === 'negative') buckets[c.bucketTs].negative += 1
+        else buckets[c.bucketTs].neutral += 1
 
-    const sortedBuckets = Object.values(buckets).sort((a, b) => a.ts - b.ts)
-
-    const labels = sortedBuckets.map((b) => {
-        const date = new Date(b.ts)
-        if (interval >= 24 * 60 * 60 * 1000) {
-            return format(date, 'd MMM', { locale: ru })
-        } else {
-            return format(date, 'HH:mm', { locale: ru })
+        if (c.analysis?.is_toxic === true) {
+            buckets[c.bucketTs].toxic += 1
         }
     })
+
+    const sortedBuckets = Object.values(buckets).sort(
+        (a, b) => a.bucketTs - b.bucketTs,
+    )
+    const labels = sortedBuckets.map((bucket) =>
+        formatBucketLabel(bucket.bucketTs, interval),
+    )
+    const positiveData = sortedBuckets.map((bucket) => bucket.positive || 0)
+    const negativeData = sortedBuckets.map((bucket) => bucket.negative || 0)
+    const neutralData = sortedBuckets.map((bucket) => bucket.neutral || 0)
+    const toxicData = sortedBuckets.map((bucket) => bucket.toxic || 0)
 
     return {
         labels,
         datasets: [
             {
-                label: 'Позитив',
+                label: 'Positive',
                 borderColor: '#22c55e',
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                data: sortedBuckets.map((b) => b.positive),
+                data: positiveData,
                 tension: 0.4,
                 fill: true,
                 borderWidth: 3,
@@ -141,10 +166,10 @@ const chartData = computed(() => {
                 pointHoverRadius: 6,
             },
             {
-                label: 'Негатив',
+                label: 'Negative',
                 borderColor: '#ef4444',
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                data: sortedBuckets.map((b) => b.negative),
+                data: negativeData,
                 tension: 0.4,
                 fill: true,
                 borderWidth: 3,
@@ -152,11 +177,22 @@ const chartData = computed(() => {
                 pointHoverRadius: 6,
             },
             {
-                label: 'Токсичность',
+                label: 'Neutral',
                 borderColor: '#a855f7',
                 backgroundColor: 'rgba(168, 85, 247, 0.1)',
                 borderDash: [5, 5],
-                data: sortedBuckets.map((b) => b.toxic),
+                data: neutralData,
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 2,
+                pointHoverRadius: 6,
+            },
+            {
+                label: 'Toxic',
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                data: toxicData,
                 tension: 0.4,
                 fill: true,
                 borderWidth: 3,
@@ -167,11 +203,19 @@ const chartData = computed(() => {
     }
 })
 
-watch(chartData, () => {
+const chartRenderKey = computed(() => {
+    const labels = chartData.value.labels.join('|')
+    const values = chartData.value.datasets
+        .map((dataset) => dataset.data.join(','))
+        .join('|')
+    return `${activeFrame.value}-${labels}-${values}`
+})
+
+watch([chartData, activeFrame], () => {
     nextTick(() => {
         updateChartLimit()
     })
-})
+}, { immediate: true })
 
 const chartOptions = {
     responsive: true,
@@ -281,7 +325,12 @@ const chartOptions = {
         </div>
 
         <div class="flex-1 relative min-h-0 cursor-grab active:cursor-grabbing">
-            <Line ref="chartRef" :data="chartData" :options="chartOptions" />
+            <Line
+                :key="chartRenderKey"
+                ref="chartRef"
+                :data="chartData"
+                :options="chartOptions"
+            />
 
             <div
                 v-if="chartData.labels.length === 0"

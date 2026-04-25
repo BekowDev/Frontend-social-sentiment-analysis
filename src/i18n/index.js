@@ -27,13 +27,25 @@ export const i18n = createI18n({
     messages: { ru, en, kk },
 });
 
+function applyI18nLocale(nextLocale) {
+    if (typeof i18n.global.locale === 'string') {
+        i18n.global.locale = nextLocale;
+        return;
+    }
+
+    i18n.global.locale.value = nextLocale;
+}
+
 export function setAppLocale(locale) {
     if (!SUPPORTED_LOCALES.includes(locale)) {
         return;
     }
 
-    i18n.global.locale.value = locale;
+    applyI18nLocale(locale);
+    document.documentElement.setAttribute('lang', locale);
     localStorage.setItem(LOCALE_STORAGE_KEY, locale);
 }
+
+setAppLocale(detectInitialLocale());
 
 export default i18n;
