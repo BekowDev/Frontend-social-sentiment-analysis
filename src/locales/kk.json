@@ -1,13 +1,24 @@
 {
     "common": {
         "history": "Тарих",
+        "dashboard": "Талдау беті",
         "login": "Кіру",
         "logout": "Шығу",
+        "clearHistory": "Тарихты тазалау",
+        "deleteAccount": "Аккаунтты жою",
+        "analysesDone": "Жасалған талдаулар",
+        "noEmail": "Email көрсетілмеген",
+        "confirmClearHistory": "Талдаулар тарихын толық тазалайсыз ба?",
+        "confirmDeleteAccount": "Аккаунт пен бүкіл тарихты қайтарымсыз жоясыз ба?",
+        "confirmDeleteAccountTypeWord": "Жоюды растау үшін мына сөзді енгізіңіз",
+        "confirmDeleteAccountTypeWordMismatch": "Сөз қате енгізілді. Жою тоқтатылды.",
+        "confirmLogout": "Аккаунттан шығасыз ба?",
+        "actionFailed": "Әрекет орындалмады",
         "insights": "Инсайттар",
         "loading": "Жүктелуде..."
     },
     "dashboard": {
-        "title": "oikui",
+        "title": "MoodFlow",
         "subtitle": "Аудитория реакциясын секунд ішінде талдаңыз",
         "enterLink": "Сілтемені енгізіңіз",
         "linkPlaceholder": "Telegram / YouTube жазбасының сілтемесін қойыңыз",
@@ -23,20 +34,22 @@
         "reactionsTitle": "Жазбаға реакциялар",
         "analysisSuccess": "Талдау сәтті аяқталды!",
         "invalidLinkError": "Жазба сілтемесін енгізіңіз",
-        "analysisError": "Талдау қатесі"
+        "analysisError": "Талдау қатесі",
+        "noReactionsData": "Реакциялар туралы дерек жоқ"
     },
     "historyView": {
         "title": "Талдау тарихы",
         "back": "Басты бетке",
         "empty": "Тарих әзірге бос",
+        "searchPlaceholder": "Сілтеме немесе күн бойынша іздеу...",
         "comments": "Пікірлер",
         "positive": "Позитив",
         "negative": "Негатив"
     },
     "login": {
         "title": "Кіру",
-        "subtitle": "oikui жүйесіне кіріңіз",
-        "subtitleRegister": "oikui аккаунтын жасаңыз",
+        "subtitle": "MoodFlow жүйесіне кіріңіз",
+        "subtitleRegister": "MoodFlow аккаунтын жасаңыз",
         "email": "Email",
         "password": "Құпиясөз",
         "name": "Аты",
@@ -53,11 +66,82 @@
         "errorRegister": "Тіркелу мүмкін болмады",
         "switchToRegister": "Аккаунтыңыз жоқ па? Тіркелу",
         "switchToLogin": "Аккаунтыңыз бар ма? Кіру",
+        "backHome": "Басты бетке оралу",
         "passwordMismatch": "Құпиясөздер сәйкес келмейді",
         "registerSuccess": "Тіркелу сәтті аяқталды! Енді кіріңіз."
     },
+    "commentsTable": {
+        "searchPlaceholder": "Мәтін бойынша іздеу...",
+        "filters": {
+            "all": "Барлық тоналдық",
+            "positive": "🟢 Тек позитив",
+            "negative": "🔴 Тек негатив",
+            "neutral": "⚪️ Бейтарап",
+            "toxic": "☣️ Тек токсик"
+        },
+        "exportButton": "Excel",
+        "printButton": "Басып шығару",
+        "columns": {
+            "author": "Автор",
+            "comment": "Пікір",
+            "aiAnalysis": "AI талдауы"
+        },
+        "toxicBadge": "TOXIC",
+        "empty": "Ештеңе табылмады",
+        "resetFilters": "Сүзгілерді тазалау",
+        "yes": "ИӘ",
+        "no": "Жоқ",
+        "export": {
+            "fileName": "Sentiment_Analysis",
+            "author": "Автор",
+            "text": "Мәтін",
+            "sentiment": "Тоналдық",
+            "confidence": "Сенімділік",
+            "toxicity": "Токсиктік",
+            "date": "Күні"
+        }
+    },
+    "statsCards": {
+        "total": "Барлығы",
+        "positive": "Позитив",
+        "negative": "Негатив",
+        "toxic": "Токсик"
+    },
+    "sentimentChart": {
+        "labels": {
+            "positive": "Позитив",
+            "negative": "Негатив",
+            "neutral": "Бейтарап",
+            "toxic": "Токсик"
+        }
+    },
+    "trendChart": {
+        "grouping": "Топтау",
+        "empty": "Дерек жоқ",
+        "tooltip": {
+            "time": "Уақыт"
+        },
+        "datasets": {
+            "positive": "Позитив",
+            "negative": "Негатив",
+            "neutral": "Бейтарап",
+            "toxic": "Токсик"
+        },
+        "frames": {
+            "1m": "1м",
+            "30m": "30м",
+            "1h": "1с",
+            "4h": "4с",
+            "12h": "12с",
+            "1d": "1к"
+        }
+    },
+    "keywordCloud": {
+        "title": "Негізгі тақырыптар",
+        "reset": "Тазалау"
+    },
     "aiSummary": {
-        "title": "Gemini интеллектуалды конспектісі",
+        "title": "ЖИ интеллектуалды конспектісі",
         "loading": "Gemini интеллектуалды конспект дайындап жатыр...",
         "fallback": "Талдау аяқталғаннан кейін қорытынды шығады."
     },
@@ -65,11 +149,11 @@
         "badge": "AI көңіл-күй аналитика платформасы",
         "titlePrefix": "Әлеуметтік желідегі",
         "titleAccent": "көңіл-күйді AI арқылы талдаңыз",
-        "subtitle": "oikui Telegram және YouTube пікірлерін талдайды, токсик мазмұнды анықтайды және трендтерді кәсіби dashboard ішінде көрсетеді.",
+        "subtitle": "MoodFlow Telegram және YouTube пікірлерін талдайды, токсик мазмұнды анықтайды және трендтерді кәсіби dashboard ішінде көрсетеді.",
         "ctaStart": "Бастау",
-        "ctaDashboard": "Dashboard ашу",
+        "ctaDashboard": "Талдау бетін ашу",
         "ctaDemo": "Демо көру",
-        "featuresTitle": "Неліктен командалар oikui таңдайды",
+        "featuresTitle": "Неліктен MoodFlow-ды таңдайды",
         "featuresSubtitle": "Өнім, медиа және қолдау командаларына арналған дайын AI sentiment құралдары.",
         "features": {
             "deep": {

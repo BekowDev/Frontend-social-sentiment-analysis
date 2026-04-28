@@ -1,13 +1,24 @@
 {
     "common": {
         "history": "История",
+        "dashboard": "Страница анализа",
         "login": "Войти",
         "logout": "Выйти",
+        "clearHistory": "Очистить историю",
+        "deleteAccount": "Удалить аккаунт",
+        "analysesDone": "Сделано анализов",
+        "noEmail": "Email не указан",
+        "confirmClearHistory": "Очистить всю историю анализов?",
+        "confirmDeleteAccount": "Удалить аккаунт и всю историю без возможности восстановления?",
+        "confirmDeleteAccountTypeWord": "Для подтверждения удаления введите это слово",
+        "confirmDeleteAccountTypeWordMismatch": "Слово введено неверно. Удаление отменено.",
+        "confirmLogout": "Выйти из аккаунта?",
+        "actionFailed": "Не удалось выполнить действие",
         "insights": "Инсайты",
         "loading": "Загрузка..."
     },
     "dashboard": {
-        "title": "oikui",
+        "title": "MoodFlow",
         "subtitle": "Анализируйте реакцию аудитории за секунды",
         "enterLink": "Введите ссылку",
         "linkPlaceholder": "Вставьте ссылку на пост Telegram / YouTube",
@@ -23,20 +34,22 @@
         "reactionsTitle": "Реакции на пост",
         "analysisSuccess": "Анализ успешно завершен!",
         "invalidLinkError": "Введите ссылку на пост",
-        "analysisError": "Ошибка при анализе"
+        "analysisError": "Ошибка при анализе",
+        "noReactionsData": "Нет данных о реакциях"
     },
     "historyView": {
         "title": "История анализов",
         "back": "На главную",
         "empty": "История пока пуста",
+        "searchPlaceholder": "Поиск по ссылке или дате...",
         "comments": "Комментариев",
         "positive": "Позитив",
         "negative": "Негатив"
     },
     "login": {
         "title": "Вход",
-        "subtitle": "Войдите в oikui",
-        "subtitleRegister": "Создайте аккаунт oikui",
+        "subtitle": "Войдите в MoodFlow",
+        "subtitleRegister": "Создайте аккаунт MoodFlow",
         "email": "Email",
         "password": "Пароль",
         "name": "Имя",
@@ -53,11 +66,82 @@
         "errorRegister": "Не удалось зарегистрироваться",
         "switchToRegister": "Нет аккаунта? Зарегистрироваться",
         "switchToLogin": "Уже есть аккаунт? Войти",
+        "backHome": "Назад на главную",
         "passwordMismatch": "Пароли не совпадают",
         "registerSuccess": "Регистрация успешна! Теперь войдите."
     },
+    "commentsTable": {
+        "searchPlaceholder": "Поиск по тексту...",
+        "filters": {
+            "all": "Все тональности",
+            "positive": "🟢 Только позитив",
+            "negative": "🔴 Только негатив",
+            "neutral": "⚪️ Нейтральные",
+            "toxic": "☣️ Только токсичные"
+        },
+        "exportButton": "Excel",
+        "printButton": "Печать",
+        "columns": {
+            "author": "Автор",
+            "comment": "Комментарий",
+            "aiAnalysis": "Анализ ИИ"
+        },
+        "toxicBadge": "TOXIC",
+        "empty": "Ничего не найдено",
+        "resetFilters": "Сбросить фильтры",
+        "yes": "ДА",
+        "no": "Нет",
+        "export": {
+            "fileName": "Sentiment_Analysis",
+            "author": "Автор",
+            "text": "Текст",
+            "sentiment": "Тональность",
+            "confidence": "Уверенность",
+            "toxicity": "Токсичность",
+            "date": "Дата"
+        }
+    },
+    "statsCards": {
+        "total": "Всего",
+        "positive": "Позитив",
+        "negative": "Негатив",
+        "toxic": "Токсично"
+    },
+    "sentimentChart": {
+        "labels": {
+            "positive": "Позитив",
+            "negative": "Негатив",
+            "neutral": "Нейтрально",
+            "toxic": "Токсично"
+        }
+    },
+    "trendChart": {
+        "grouping": "Группировка",
+        "empty": "Нет данных",
+        "tooltip": {
+            "time": "Время"
+        },
+        "datasets": {
+            "positive": "Позитив",
+            "negative": "Негатив",
+            "neutral": "Нейтрально",
+            "toxic": "Токсично"
+        },
+        "frames": {
+            "1m": "1м",
+            "30m": "30м",
+            "1h": "1ч",
+            "4h": "4ч",
+            "12h": "12ч",
+            "1d": "1д"
+        }
+    },
+    "keywordCloud": {
+        "title": "Ключевые темы",
+        "reset": "Сбросить"
+    },
     "aiSummary": {
-        "title": "Интеллектуальный конспект Gemini",
+        "title": "Интеллектуальный конспект ИИ",
         "loading": "Gemini подготавливает интеллектуальный конспект...",
         "fallback": "Результат будет доступен после завершения анализа."
     },
@@ -65,11 +149,11 @@
         "badge": "Платформа AI-аналитики тональности",
         "titlePrefix": "Анализируйте соцсети и",
         "titleAccent": "настроения с AI",
-        "subtitle": "oikui анализирует комментарии из Telegram и YouTube, выявляет токсичность и показывает тренды в профессиональном dashboard для быстрых решений.",
+        "subtitle": "MoodFlow анализирует комментарии из Telegram и YouTube, выявляет токсичность и показывает тренды в профессиональном dashboard для быстрых решений.",
         "ctaStart": "Начать",
-        "ctaDashboard": "Открыть Dashboard",
+        "ctaDashboard": "Открыть страницу анализа",
         "ctaDemo": "Смотреть демо",
-        "featuresTitle": "Почему команды выбирают oikui",
+        "featuresTitle": "Почему выбирают MoodFlow",
         "featuresSubtitle": "Готовые AI-инструменты для мониторинга тональности в продуктах, медиа и поддержке.",
         "features": {
             "deep": {

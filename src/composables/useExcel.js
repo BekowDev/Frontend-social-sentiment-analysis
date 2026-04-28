@@ -1,3 +1,5 @@
+import * as XLSX from 'xlsx'
+
 export function useExcel() {
     const exportToExcel = (data, fileName = 'Report') => {
         if (!data || !data.length) {

@@ -1,7 +1,9 @@
 <script setup>
     import { computed } from 'vue';
+    import { useI18n } from 'vue-i18n';
 
-    // Важно: defineProps должен иметь значения по умолчанию!
+    const { t } = useI18n();
+
     const props = defineProps({
         stats: {
             type: Object,
@@ -33,7 +35,7 @@
         if (safeStats.value.total > 0) {
             cards.push({
                 key: 'total',
-                label: 'Всего',
+                label: t('statsCards.total'),
                 value: safeStats.value.total,
                 valueClass: 'text-gray-900 dark:text-gray-100',
             });
@@ -41,7 +43,7 @@
         if (safeStats.value.positive > 0) {
             cards.push({
                 key: 'positive',
-                label: 'Позитив',
+                label: t('statsCards.positive'),
                 value: safeStats.value.positive,
                 valueClass: 'text-green-600',
             });
@@ -49,7 +51,7 @@
         if (safeStats.value.negative > 0) {
             cards.push({
                 key: 'negative',
-                label: 'Негатив',
+                label: t('statsCards.negative'),
                 value: safeStats.value.negative,
                 valueClass: 'text-red-600',
             });
@@ -57,7 +59,7 @@
         if (safeStats.value.toxic > 0) {
             cards.push({
                 key: 'toxic',
-                label: 'Токсично',
+                label: t('statsCards.toxic'),
                 value: safeStats.value.toxic,
                 valueClass: 'text-purple-600',
             });

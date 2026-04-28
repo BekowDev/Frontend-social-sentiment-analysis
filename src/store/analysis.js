@@ -1,17 +1,17 @@
-import { defineStore } from 'pinia';
-import api from '@/api';
-import { getAnalysisTaskStatus, startAnalysis } from '@/api';
-import i18n from '@/i18n';
+import { defineStore } from "pinia";
+import api from "@/api";
+import { getAnalysisTaskStatus, startAnalysis } from "@/api";
+import i18n from "@/i18n";
 
 const POLLING_INTERVAL_MS = 3000;
-const PROCESSING_STATUSES = new Set(['waiting', 'processing', 'active']);
+const PROCESSING_STATUSES = new Set(["waiting", "processing", "active"]);
 
-export const useAnalysisStore = defineStore('analysis', {
+export const useAnalysisStore = defineStore("analysis", {
     state: () => ({
         results: null,
         isLoading: false,
         analysisProgress: 0,
-        analysisStatus: '',
+        analysisStatus: "",
         summary: null,
         error: null,
         history: [],
@@ -26,7 +26,7 @@ export const useAnalysisStore = defineStore('analysis', {
             this.error = null;
             this.activeTaskId = null;
             this.analysisProgress = 0;
-            this.analysisStatus = '';
+            this.analysisStatus = "";
         },
         clearPollingTimer() {
             if (this.pollingTimerId) {
@@ -37,8 +37,8 @@ export const useAnalysisStore = defineStore('analysis', {
         unwrapResponse(payload) {
             if (
                 payload &&
-                typeof payload === 'object' &&
-                Object.prototype.hasOwnProperty.call(payload, 'data')
+                typeof payload === "object" &&
+                Object.prototype.hasOwnProperty.call(payload, "data")
             ) {
                 return payload.data;
             }
@@ -46,22 +46,26 @@ export const useAnalysisStore = defineStore('analysis', {
             return payload;
         },
         setLoadingMessageByStatus(status) {
-            if (status === 'waiting') {
-                this.analysisStatus = 'Задача ожидает в очереди...';
+            if (status === "waiting") {
+                this.analysisStatus = "Задача ожидает в очереди...";
                 return;
             }
 
-            if (status === 'processing' || status === 'active') {
-                this.analysisStatus = 'Идет анализ комментариев через Gemini...';
+            if (status === "processing" || status === "active") {
+                this.analysisStatus =
+                    "Идет анализ комментариев через Gemini...";
                 return;
             }
 
-            this.analysisStatus = 'Ожидание результата анализа...';
+            this.analysisStatus = "Ожидание результата анализа...";
         },
         setProgressFromTaskStatus(payload) {
             const progressValue = Number(payload?.progress);
             if (Number.isFinite(progressValue)) {
-                this.analysisProgress = Math.max(0, Math.min(100, progressValue));
+                this.analysisProgress = Math.max(
+                    0,
+                    Math.min(100, progressValue),
+                );
             }
 
             if (payload?.message) {
@@ -72,9 +76,11 @@ export const useAnalysisStore = defineStore('analysis', {
             this.setLoadingMessageByStatus(payload?.status);
         },
         buildAnalyzePayload(payload) {
-            const rawUrl = payload?.url || payload?.postLink || '';
-            const normalizedMode = payload?.mode === 'deep' ? 'deep' : 'fast';
-            const language = String(i18n.global.locale.value || 'ru').toLowerCase();
+            const rawUrl = payload?.url || payload?.postLink || "";
+            const normalizedMode = payload?.mode === "deep" ? "deep" : "fast";
+            const language = String(
+                i18n.global.locale.value || "ru",
+            ).toLowerCase();
 
             return {
                 url: String(rawUrl).trim(),
@@ -84,27 +90,27 @@ export const useAnalysisStore = defineStore('analysis', {
         },
         applySummaryFromResult(result) {
             const rawSummary = result?.aiSummary;
-            if (!rawSummary || typeof rawSummary !== 'object') {
+            if (!rawSummary || typeof rawSummary !== "object") {
                 this.summary = null;
                 return;
             }
 
             this.summary = {
-                content: String(rawSummary.content || '').trim(),
+                content: String(rawSummary.content || "").trim(),
                 keyPoints: Array.isArray(rawSummary.keyPoints)
                     ? rawSummary.keyPoints
-                          .map((item) => String(item || '').trim())
+                          .map((item) => String(item || "").trim())
                           .filter(Boolean)
                           .slice(0, 4)
                     : [],
             };
         },
         normalizeCommentDate(value) {
-            if (value == null || value === '') {
+            if (value == null || value === "") {
                 return new Date().toISOString();
             }
 
-            if (typeof value === 'number') {
+            if (typeof value === "number") {
                 const ts = value < 10000000000 ? value * 1000 : value;
                 const parsed = new Date(ts);
                 return Number.isNaN(parsed.getTime())
@@ -118,19 +124,22 @@ export const useAnalysisStore = defineStore('analysis', {
                 : parsed.toISOString();
         },
         normalizeResult(result) {
-            if (!result || typeof result !== 'object') {
+            if (!result || typeof result !== "object") {
                 return null;
             }
 
             const statsSource = result.stats || result.sentiment_stats || {};
-            const commentsSource = Array.isArray(result.comments) ? result.comments : [];
+            const commentsSource = Array.isArray(result.comments)
+                ? result.comments
+                : [];
             const normalizedComments = commentsSource.map((comment, index) => {
-                const source = comment && typeof comment === 'object' ? comment : {};
-                const text = String(source.text || source.content || '').trim();
+                const source =
+                    comment && typeof comment === "object" ? comment : {};
+                const text = String(source.text || source.content || "").trim();
                 return {
                     ...source,
                     comment_id: String(source.comment_id || `comment-${index}`),
-                    author_name: String(source.author_name || 'Unknown'),
+                    author_name: String(source.author_name || "Unknown"),
                     text,
                     content: text,
                     date: this.normalizeCommentDate(source.date),
@@ -146,10 +155,12 @@ export const useAnalysisStore = defineStore('analysis', {
                 };
 
                 comments.forEach((comment) => {
-                    const sentiment = String(comment?.analysis?.sentiment || '').toLowerCase();
-                    if (sentiment === 'positive') stats.positive += 1;
-                    if (sentiment === 'negative') stats.negative += 1;
-                    if (sentiment === 'neutral') stats.neutral += 1;
+                    const sentiment = String(
+                        comment?.analysis?.sentiment || "",
+                    ).toLowerCase();
+                    if (sentiment === "positive") stats.positive += 1;
+                    if (sentiment === "negative") stats.negative += 1;
+                    if (sentiment === "neutral") stats.neutral += 1;
                     if (comment?.analysis?.is_toxic === true) stats.toxic += 1;
                 });
 
@@ -170,18 +181,21 @@ export const useAnalysisStore = defineStore('analysis', {
                 : statsFromPayload;
 
             const aiSummary =
-                result.aiSummary && typeof result.aiSummary === 'object'
+                result.aiSummary && typeof result.aiSummary === "object"
                     ? {
-                          content: String(result.aiSummary.content || '').trim(),
+                          content: String(
+                              result.aiSummary.content || "",
+                          ).trim(),
                           keyPoints: Array.isArray(result.aiSummary.keyPoints)
                               ? result.aiSummary.keyPoints
-                                    .map((item) => String(item || '').trim())
+                                    .map((item) => String(item || "").trim())
                                     .filter(Boolean)
                               : [],
                       }
                     : null;
             const normalizedAiSummary =
-                aiSummary && (aiSummary.content || aiSummary.keyPoints.length > 0)
+                aiSummary &&
+                (aiSummary.content || aiSummary.keyPoints.length > 0)
                     ? aiSummary
                     : null;
 
@@ -194,14 +208,18 @@ export const useAnalysisStore = defineStore('analysis', {
             };
         },
         async fetchHistory() {
-            const { data: response } = await api.get('/social/history');
+            const { data: response } = await api.get("/social/history");
             this.history = this.unwrapResponse(response) || [];
         },
         async loadFromHistory(id) {
             this.isLoading = true;
             try {
-                const { data: response } = await api.get(`/social/history/${id}`);
-                this.results = this.normalizeResult(this.unwrapResponse(response));
+                const { data: response } = await api.get(
+                    `/social/history/${id}`,
+                );
+                this.results = this.normalizeResult(
+                    this.unwrapResponse(response),
+                );
                 this.applySummaryFromResult(this.results);
             } finally {
                 this.isLoading = false;
@@ -211,20 +229,21 @@ export const useAnalysisStore = defineStore('analysis', {
             this.clearPollingTimer();
             this.isLoading = true;
             this.resetAnalysisState();
-            this.analysisStatus = 'Запуск анализа...';
+            this.analysisStatus = "Запуск анализа...";
             const requestPayload = this.buildAnalyzePayload(payload);
 
             try {
                 if (!requestPayload.url) {
-                    throw new Error('Введите ссылку на пост');
+                    throw new Error("Введите ссылку на пост");
                 }
 
-                const { data: startResponse } = await startAnalysis(requestPayload);
+                const { data: startResponse } =
+                    await startAnalysis(requestPayload);
                 const startData = this.unwrapResponse(startResponse);
                 const taskId = startData?.taskId;
 
                 if (!taskId) {
-                    throw new Error('Сервер не вернул taskId для анализа');
+                    throw new Error("Сервер не вернул taskId для анализа");
                 }
 
                 this.activeTaskId = taskId;
@@ -242,19 +261,22 @@ export const useAnalysisStore = defineStore('analysis', {
                         try {
                             const { data: statusResponse } =
                                 await getAnalysisTaskStatus(taskId);
-                            const statusData = this.unwrapResponse(statusResponse);
+                            const statusData =
+                                this.unwrapResponse(statusResponse);
                             const taskStatus = statusData?.status;
                             this.setProgressFromTaskStatus(statusData);
 
-                            if (taskStatus === 'completed') {
+                            if (taskStatus === "completed") {
                                 this.clearPollingTimer();
-                                this.results = this.normalizeResult(statusData.result);
+                                this.results = this.normalizeResult(
+                                    statusData.result,
+                                );
                                 this.applySummaryFromResult(this.results);
                                 this.isLoading = false;
                                 this.analysisProgress = 100;
                                 this.analysisStatus =
                                     statusData?.message ||
-                                    'Анализ завершен. Результаты готовы.';
+                                    "Анализ завершен. Результаты готовы.";
                                 this.activeTaskId = null;
                                 resolve(this.results);
                                 return;
@@ -265,10 +287,10 @@ export const useAnalysisStore = defineStore('analysis', {
                                 return;
                             }
 
-                            if (taskStatus === 'failed') {
+                            if (taskStatus === "failed") {
                                 throw new Error(
                                     statusData?.message ||
-                                        'Задача анализа завершилась с ошибкой',
+                                        "Задача анализа завершилась с ошибкой",
                                 );
                             }
 
@@ -278,9 +300,9 @@ export const useAnalysisStore = defineStore('analysis', {
                             this.error =
                                 e.response?.data?.message ||
                                 e.message ||
-                                'Ошибка при получении статуса анализа';
+                                "Ошибка при получении статуса анализа";
                             this.isLoading = false;
-                            this.analysisStatus = '';
+                            this.analysisStatus = "";
                             this.activeTaskId = null;
                             reject(e);
                         } finally {
@@ -288,14 +310,20 @@ export const useAnalysisStore = defineStore('analysis', {
                         }
                     };
 
-                    this.pollingTimerId = setInterval(pollTask, POLLING_INTERVAL_MS);
+                    this.pollingTimerId = setInterval(
+                        pollTask,
+                        POLLING_INTERVAL_MS,
+                    );
                     pollTask();
                 });
             } catch (e) {
                 this.clearPollingTimer();
-                this.error = e.response?.data?.message || e.message || 'Ошибка при анализе';
+                this.error =
+                    e.response?.data?.message ||
+                    e.message ||
+                    "Ошибка при анализе";
                 this.isLoading = false;
-                this.analysisStatus = '';
+                this.analysisStatus = "";
                 this.activeTaskId = null;
                 throw e;
             }

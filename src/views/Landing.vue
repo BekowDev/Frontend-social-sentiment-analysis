@@ -10,6 +10,10 @@ const landingRef = ref(null)
 let revealObserver = null
 let typewriterTimer = null
 let caseStageTimer = null
+const TYPEWRITER_INTERVAL_MS = 20
+const THINKING_DELAY_MS = 900
+const CASE_SWITCH_DELAY_MS = 3200
+const HOVER_RECHECK_DELAY_MS = 450
 
 const ctaTarget = computed(() =>
     auth.isLoggedIn ? { name: 'Dashboard' } : { name: 'Login' },
@@ -110,6 +114,7 @@ const aiCases = computed(() => [
 const activeCaseIndex = ref(0)
 const activePhase = ref('typing')
 const typedMessage = ref('')
+const isAiCardHovered = ref(false)
 
 const activeCase = computed(() => aiCases.value[activeCaseIndex.value] || null)
 
@@ -159,6 +164,16 @@ const clearAiTimers = () => {
     }
 }
 
+const scheduleNextAiCase = (nextIndex, delay = CASE_SWITCH_DELAY_MS) => {
+    caseStageTimer = setTimeout(() => {
+        if (isAiCardHovered.value) {
+            scheduleNextAiCase(nextIndex, HOVER_RECHECK_DELAY_MS)
+            return
+        }
+        runAiCaseCycle(nextIndex)
+    }, delay)
+}
+
 const runAiCaseCycle = (index = 0) => {
     clearAiTimers()
     if (!aiCases.value.length) return
@@ -179,12 +194,10 @@ const runAiCaseCycle = (index = 0) => {
             activePhase.value = 'thinking'
             caseStageTimer = setTimeout(() => {
                 activePhase.value = 'result'
-                caseStageTimer = setTimeout(() => {
-                    runAiCaseCycle((safeIndex + 1) % aiCases.value.length)
-                }, 2200)
-            }, 1200)
+                scheduleNextAiCase((safeIndex + 1) % aiCases.value.length)
+            }, THINKING_DELAY_MS)
         }
-    }, 24)
+    }, TYPEWRITER_INTERVAL_MS)
 }
 
 const setupRevealObserver = () => {
@@ -301,7 +314,10 @@ watch(
             </div>
         </section>
 
-        <section id="features" class="mx-auto max-w-7xl px-6 pb-16 md:pb-20">
+        <section
+            id="features"
+            class="scroll-mt-24 mx-auto max-w-7xl px-6 pb-16 md:pb-20"
+        >
             <div data-reveal class="reveal mb-8">
                 <h2
                     class="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl"
@@ -391,11 +407,11 @@ watch(
 
         <section
             id="how-it-works"
-            class="mx-auto max-w-7xl px-6 pb-16 transition-colors duration-300 md:pb-20"
+            class="scroll-mt-24 mx-auto max-w-7xl px-6 pb-16 transition-colors duration-300 md:pb-20"
         >
             <div
                 data-reveal
-                class="reveal grid gap-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-xl backdrop-blur-sm lg:grid-cols-2 lg:items-center"
+                class="reveal grid gap-8 rounded-3xl border border-[var(--border-color)] bg-[var(--bg-card)] px-6 py-[29px] shadow-xl backdrop-blur-sm lg:grid-cols-2 lg:items-center"
             >
                 <div>
                     <p
@@ -415,10 +431,12 @@ watch(
                 </div>
 
                 <div
-                    class="relative overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card-strong)] p-5 shadow-inner"
+                    class="relative min-h-[220px] overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card-strong)] p-5 shadow-inner transition-colors duration-300 hover:border-indigo-400/60"
+                    @mouseenter="isAiCardHovered = true"
+                    @mouseleave="isAiCardHovered = false"
                 >
                     <div
-                        class="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card-strong)] px-4 py-3 text-sm text-[var(--text-muted)] shadow-sm"
+                        class="h-16 overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card-strong)] px-4 py-3 text-sm leading-relaxed text-[var(--text-muted)] shadow-sm"
                     >
                         {{ typedMessage }}
                         <span
@@ -451,54 +469,62 @@ watch(
                                 class="h-2.5 w-2.5 rounded-full transition-all duration-300"
                                 :class="
                                     idx === activeCaseIndex
-                                        ? 'scale-110 bg-[var(--secondary-color)]'
-                                        : 'bg-[var(--border-color)]'
+                                        ? 'scale-115 bg-[var(--secondary-color)]'
+                                        : idx < activeCaseIndex
+                                          ? 'bg-indigo-300/80'
+                                          : 'bg-[var(--border-color)]'
                                 "
                             ></span>
                         </div>
                     </div>
 
-                    <div
-                        v-if="activePhase === 'thinking'"
-                        class="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-1.5 text-xs font-semibold text-[var(--primary-color)]"
-                    >
-                        <span class="h-2 w-2 animate-ping rounded-full bg-[var(--primary-color)]"></span>
-                        {{ t('landing.aiAnalysis.processing') }}
-                    </div>
+                    <div class="relative mt-5 min-h-[64px]">
+                        <Transition name="fade-up">
+                            <div
+                                v-if="activePhase === 'thinking'"
+                                class="absolute inset-x-0 top-0 inline-flex w-fit items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-1.5 text-xs font-semibold text-[var(--primary-color)]"
+                            >
+                                <span class="h-2 w-2 animate-ping rounded-full bg-[var(--primary-color)]"></span>
+                                {{ t('landing.aiAnalysis.processing') }}
+                            </div>
+                        </Transition>
 
-                    <div
-                        v-if="activePhase === 'result' && activeCase"
-                        class="result-card mt-5 rounded-2xl border px-4 py-3 text-sm shadow-sm"
-                        :style="resultStyle"
-                    >
-                        <span class="inline-flex items-center gap-2 font-semibold">
-                            <span
-                                v-if="activeCase.icon === 'check'"
-                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-positive-bg)] text-[var(--status-positive-text)]"
+                        <Transition name="fade-up">
+                            <div
+                                v-if="activePhase === 'result' && activeCase"
+                                class="result-card absolute inset-x-0 top-0 rounded-2xl border px-4 py-3 text-sm shadow-sm"
+                                :style="resultStyle"
                             >
-                                ✓
-                            </span>
-                            <span
-                                v-else-if="activeCase.icon === 'dot'"
-                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)]"
-                            >
-                                •
-                            </span>
-                            <span
-                                v-else-if="activeCase.icon === 'alert'"
-                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-toxic-bg)] text-[var(--status-toxic-text)]"
-                            >
-                                !
-                            </span>
-                            <span
-                                v-else
-                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-sarcasm-bg)] text-[var(--status-sarcasm-text)] detective-icon"
-                            >
-                                🕵️
-                            </span>
-                            {{ t('landing.demo.sentiment_label') }}:
-                            {{ t(activeCase.resultKey) }}
-                        </span>
+                                <span class="inline-flex items-center gap-2 font-semibold">
+                                    <span
+                                        v-if="activeCase.icon === 'check'"
+                                        class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-positive-bg)] text-[var(--status-positive-text)]"
+                                    >
+                                        ✓
+                                    </span>
+                                    <span
+                                        v-else-if="activeCase.icon === 'dot'"
+                                        class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)]"
+                                    >
+                                        •
+                                    </span>
+                                    <span
+                                        v-else-if="activeCase.icon === 'alert'"
+                                        class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-toxic-bg)] text-[var(--status-toxic-text)]"
+                                    >
+                                        !
+                                    </span>
+                                    <span
+                                        v-else
+                                        class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--status-sarcasm-bg)] text-[var(--status-sarcasm-text)] detective-icon"
+                                    >
+                                        🕵️
+                                    </span>
+                                    {{ t('landing.demo.sentiment_label') }}:
+                                    {{ t(activeCase.resultKey) }}
+                                </span>
+                            </div>
+                        </Transition>
                     </div>
                 </div>
             </div>
@@ -584,13 +610,11 @@ watch(
             >
                 <div>
                     <div class="inline-flex items-center gap-2">
-                        <span
-                            class="grid h-8 w-8 place-items-center rounded-lg bg-linear-to-br from-[var(--primary-color)] to-[var(--secondary-color)] text-xs font-bold text-white"
-                            >SA</span
-                        >
-                        <span
-                            class="bg-linear-to-r from-[var(--primary-color)] to-[var(--secondary-color)] bg-clip-text text-xl font-extrabold text-transparent"
-                            >oikui</span
+                        <span class="text-2xl font-black tracking-tight text-gray-900 dark:text-white"
+                            >Mood<span
+                                class="bg-linear-to-r from-[var(--primary-color)] to-[var(--secondary-color)] bg-clip-text text-transparent"
+                                >Flow</span
+                            ></span
                         >
                     </div>
                     <p class="mt-3 max-w-sm">
@@ -650,20 +674,29 @@ watch(
 }
 
 .result-card {
-    animation: result-pop 2.8s ease-in-out infinite;
+    animation: result-pop 0.45s ease-out;
 }
 
 @keyframes result-pop {
-    0%,
-    60% {
+    0% {
         opacity: 0;
-        transform: translateY(8px) scale(0.98);
+        transform: translateY(6px) scale(0.985);
     }
-    68%,
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+.fade-up-enter-active,
+.fade-up-leave-active {
+    transition: all 0.25s ease;
+}
+
+.fade-up-enter-from,
+.fade-up-leave-to {
+    opacity: 0;
+    transform: translateY(6px);
 }
 
 .detective-icon {

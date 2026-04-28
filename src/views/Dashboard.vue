@@ -1,78 +1,88 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useAnalysisStore } from '@/store/analysis'
-import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
-import { useNotifications } from '@/composables/useNotifications'
-import StatsCards from '@/components/analysis/StatsCards.vue'
-import AiSummary from '@/components/analysis/AiSummary.vue'
-import KeywordCloud from '@/components/analysis/KeywordCloud.vue'
-import CommentsTable from '@/components/analysis/CommentsTable.vue'
-import SentimentChart from '@/components/SentimentChart.vue'
-import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue'
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { useAnalysisStore } from "@/store/analysis";
+import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n";
+import { useNotifications } from "@/composables/useNotifications";
+import StatsCards from "@/components/analysis/StatsCards.vue";
+import AiSummary from "@/components/analysis/AiSummary.vue";
+import KeywordCloud from "@/components/analysis/KeywordCloud.vue";
+import CommentsTable from "@/components/analysis/CommentsTable.vue";
+import SentimentChart from "@/components/SentimentChart.vue";
+import SentimentTrendChart from "@/components/analysis/SentimentTrendChart.vue";
 
-const analysisStore = useAnalysisStore()
-const { t } = useI18n()
+const analysisStore = useAnalysisStore();
+const { t } = useI18n();
 const { results, isLoading, analysisProgress, analysisStatus, history } =
-    storeToRefs(analysisStore)
-const { toast, showNotify } = useNotifications()
+    storeToRefs(analysisStore);
+const { toast, showNotify } = useNotifications();
 
 const form = ref({
-    url: 'https://t.me/petya_english/5478',
-    mode: 'fast',
-})
-const searchQuery = ref('')
-const filterSentiment = ref('all')
+    url: "https://t.me/petya_english/5478",
+    mode: "fast",
+});
+const searchQuery = ref("");
+const filterSentiment = ref("all");
 
 const hasStartedAnalysis = computed(
     () => isLoading.value || Boolean(results.value),
-)
-const recentHistory = computed(() => history.value.slice(0, 3))
+);
+const recentHistory = computed(() => history.value.slice(0, 3));
 
 onMounted(() => {
-    if (history.value.length === 0) {
-        analysisStore.fetchHistory()
+    if (history.value.length > 0) {
+        return;
     }
-})
+
+    analysisStore.fetchHistory().catch(() => {
+        showNotify(t("dashboard.analysisError"), "error");
+    });
+});
 
 const startAnalysis = async () => {
     if (!form.value.url)
-        return showNotify(t('dashboard.invalidLinkError'), 'error')
+        return showNotify(t("dashboard.invalidLinkError"), "error");
 
-    searchQuery.value = ''
-    filterSentiment.value = 'all'
+    searchQuery.value = "";
+    filterSentiment.value = "all";
 
     try {
-        await analysisStore.fetchAnalysis(form.value)
-        showNotify(t('dashboard.analysisSuccess'), 'success')
-        analysisStore.fetchHistory()
+        await analysisStore.fetchAnalysis(form.value);
+        showNotify(t("dashboard.analysisSuccess"), "success");
+        analysisStore.fetchHistory().catch(() => {
+            showNotify(t("dashboard.analysisError"), "error");
+        });
     } catch (e) {
-        showNotify(analysisStore.error || t('dashboard.analysisError'), 'error')
+        showNotify(
+            analysisStore.error || t("dashboard.analysisError"),
+            "error",
+        );
     }
-}
+};
 
 const handleKeywordSelect = (word) => {
-    searchQuery.value = word
+    searchQuery.value = word;
     if (word) {
-        const tableElement = document.getElementById('comments-table')
+        const tableElement = document.getElementById("comments-table");
         if (tableElement) {
-            tableElement.scrollIntoView({ behavior: 'smooth' })
+            tableElement.scrollIntoView({ behavior: "smooth" });
         }
     }
-}
+};
 
 onUnmounted(() => {
-    analysisStore.clearPollingTimer()
-})
+    analysisStore.clearPollingTimer();
+});
 </script>
 
 <template>
     <div
         id="main-content"
-        class="h-screen overflow-y-auto bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100"
+        class="h-screen overflow-y-auto bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100 pt-10"
     >
         <div class="mx-auto max-w-7xl px-6">
             <div
+                class="no-print"
                 :class="
                     hasStartedAnalysis
                         ? 'pb-10'
@@ -92,20 +102,20 @@ onUnmounted(() => {
                             <h1
                                 class="text-5xl font-semibold tracking-tight text-gray-700 dark:text-gray-100"
                             >
-                                {{ t('dashboard.title') }}
+                                {{ t("dashboard.title") }}
                             </h1>
                             <p
                                 v-if="!hasStartedAnalysis"
                                 class="mt-2 text-sm text-gray-500 dark:text-gray-400"
                             >
-                                {{ t('dashboard.subtitle') }}
+                                {{ t("dashboard.subtitle") }}
                             </p>
                         </div>
 
                         <p
                             class="mt-8 mb-2 text-center text-sm text-gray-500 dark:text-gray-400"
                         >
-                            {{ t('dashboard.enterLink') }}
+                            {{ t("dashboard.enterLink") }}
                         </p>
 
                         <div
@@ -121,17 +131,21 @@ onUnmounted(() => {
                                     "
                                     class="w-full rounded-full border border-gray-200 bg-gray-50 px-6 py-4 text-base text-gray-900 outline-none transition focus:bg-white focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:ring-blue-400/20"
                                 />
-                                <select
-                                    v-model="form.mode"
-                                    class="rounded-full border border-gray-200 bg-gray-100 px-5 py-3 pr-10 text-sm font-medium text-gray-900 outline-none transition focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:focus:ring-blue-400/20"
+                                <div
+                                    class="flex items-center rounded-full border border-gray-200 bg-gray-100 px-5 py-3 transition focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:focus-within:ring-blue-400/20"
                                 >
-                                    <option value="fast">
-                                        {{ t('dashboard.fastMode') }}
-                                    </option>
-                                    <option value="deep">
-                                        {{ t('dashboard.deepMode') }}
-                                    </option>
-                                </select>
+                                    <select
+                                        v-model="form.mode"
+                                        class="min-w-[140px] cursor-pointer bg-transparent pr-3 text-sm font-medium text-gray-900 outline-none dark:text-gray-100"
+                                    >
+                                        <option value="fast">
+                                            {{ t("dashboard.fastMode") }}
+                                        </option>
+                                        <option value="deep">
+                                            {{ t("dashboard.deepMode") }}
+                                        </option>
+                                    </select>
+                                </div>
                                 <button
                                     @click="startAnalysis"
                                     :disabled="isLoading"
@@ -140,8 +154,8 @@ onUnmounted(() => {
                                     {{
                                         isLoading
                                             ? analysisStatus ||
-                                              t('dashboard.analyzing')
-                                            : t('dashboard.startAnalysis')
+                                              t("dashboard.analyzing")
+                                            : t("dashboard.startAnalysis")
                                     }}
                                 </button>
                             </div>
@@ -151,7 +165,7 @@ onUnmounted(() => {
                             <p
                                 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400"
                             >
-                                {{ t('dashboard.recentAnalyses') }}
+                                {{ t("dashboard.recentAnalyses") }}
                             </p>
                             <div class="flex flex-wrap gap-2">
                                 <button
@@ -168,7 +182,7 @@ onUnmounted(() => {
                                     v-if="recentHistory.length === 0"
                                     class="text-xs text-gray-400 dark:text-gray-400"
                                 >
-                                    {{ t('dashboard.historyEmpty') }}
+                                    {{ t("dashboard.historyEmpty") }}
                                 </p>
                             </div>
                         </div>
@@ -182,12 +196,12 @@ onUnmounted(() => {
             >
                 <div
                     v-if="isLoading"
-                    class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                    class="no-print rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
                 >
                     <p
                         class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400"
                     >
-                        {{ analysisStatus || t('dashboard.progressDefault') }}
+                        {{ analysisStatus || t("dashboard.progressDefault") }}
                     </p>
                     <div
                         class="h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800"
@@ -199,9 +213,16 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <AiSummary v-if="isLoading || results" />
+                <AiSummary
+                    v-if="isLoading || results"
+                    class="no-print"
+                />
 
-                <div v-if="results" class="space-y-8">
+                <div
+                    v-if="results"
+                    id="dashboard-print-root"
+                    class="space-y-8"
+                >
                     <div
                         class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch"
                     >
@@ -211,12 +232,12 @@ onUnmounted(() => {
                         />
 
                         <div
-                            class="h-full flex flex-col rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                            class="h-full flex flex-col rounded-3xl border-gray-300 bg-white p-8 shadow-sm dark:border-gray-500 dark:bg-gray-800"
                         >
                             <h3
                                 class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400"
                             >
-                                {{ t('dashboard.reactionsTitle') }}
+                                {{ t("dashboard.reactionsTitle") }}
                             </h3>
                             <div
                                 v-if="
@@ -228,7 +249,7 @@ onUnmounted(() => {
                                 <div
                                     v-for="(react, index) in results.reactions"
                                     :key="index"
-                                    class="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 dark:bg-gray-800"
+                                    class="flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/40 px-4 py-2 dark:border-gray-600 dark:bg-gray-800/60"
                                 >
                                     <span class="text-xl">{{
                                         react.emoji
@@ -243,7 +264,7 @@ onUnmounted(() => {
                                 v-else
                                 class="flex-1 flex items-center justify-center text-gray-400 text-sm"
                             >
-                                Нет данных о реакциях
+                                {{ t("dashboard.noReactionsData") }}
                             </div>
                         </div>
 
@@ -253,7 +274,7 @@ onUnmounted(() => {
                             <h3
                                 class="mb-4 text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400"
                             >
-                                {{ t('dashboard.progressRatioTitle') }}
+                                {{ t("dashboard.progressRatioTitle") }}
                             </h3>
                             <div
                                 class="flex-1 flex items-center justify-center min-h-[200px] w-full"
@@ -279,7 +300,7 @@ onUnmounted(() => {
                         <h3
                             class="mb-6 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400"
                         >
-                            {{ t('dashboard.trendTitle') }}
+                            {{ t("dashboard.trendTitle") }}
                         </h3>
                         <div class="h-80 w-full">
                             <SentimentTrendChart :comments="results.comments" />
@@ -303,16 +324,16 @@ onUnmounted(() => {
         <transition name="slide-fade">
             <div
                 v-if="toast.show"
+                class="no-print fixed right-0 bottom-0 z-50 m-6 flex min-w-[300px] cursor-pointer items-center gap-4 rounded-3xl border border-white/20 px-6 py-4 text-white shadow-xl transition-all"
                 :class="{
                     'bg-red-700': toast.type === 'error',
                     'bg-green-700': toast.type === 'success',
                     'bg-blue-700': toast.type === 'info',
                 }"
-                class="fixed right-0 bottom-0 z-50 m-6 flex min-w-[300px] cursor-pointer items-center gap-4 rounded-3xl border border-white/20 px-6 py-4 text-white shadow-xl transition-all"
                 @click="toast.show = false"
             >
                 <span class="text-xl font-bold">{{
-                    toast.type === 'error' ? '!' : 'i'
+                    toast.type === "error" ? "!" : "i"
                 }}</span>
                 <span class="font-medium tracking-wide">{{
                     toast.message

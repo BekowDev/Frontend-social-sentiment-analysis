@@ -4,8 +4,8 @@ import TheHeader from '@/components/TheHeader.vue'
 
 <template>
     <div class="min-h-screen">
-        <TheHeader />
-        <main class="pt-16">
+        <TheHeader class="no-print" />
+        <main class="mt-16">
             <router-view />
         </main>
     </div>

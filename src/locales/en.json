@@ -1,13 +1,24 @@
 {
     "common": {
         "history": "History",
+        "dashboard": "Analysis page",
         "login": "Login",
         "logout": "Log out",
+        "clearHistory": "Clear history",
+        "deleteAccount": "Delete account",
+        "analysesDone": "Analyses completed",
+        "noEmail": "Email is not available",
+        "confirmClearHistory": "Clear all analysis history?",
+        "confirmDeleteAccount": "Delete account and all history permanently?",
+        "confirmDeleteAccountTypeWord": "To confirm deletion, type this word",
+        "confirmDeleteAccountTypeWordMismatch": "The word does not match. Deletion cancelled.",
+        "confirmLogout": "Log out from your account?",
+        "actionFailed": "Action failed",
         "insights": "Insights",
         "loading": "Loading..."
     },
     "dashboard": {
-        "title": "oikui",
+        "title": "MoodFlow",
         "subtitle": "Analyze audience sentiment in seconds",
         "enterLink": "Enter a link",
         "linkPlaceholder": "Paste Telegram / YouTube post link",
@@ -23,20 +34,22 @@
         "reactionsTitle": "Post reactions",
         "analysisSuccess": "Analysis completed successfully!",
         "invalidLinkError": "Enter a post link",
-        "analysisError": "Analysis failed"
+        "analysisError": "Analysis failed",
+        "noReactionsData": "No reaction data"
     },
     "historyView": {
         "title": "Analysis history",
         "back": "Back to dashboard",
         "empty": "History is empty",
+        "searchPlaceholder": "Search by link or date...",
         "comments": "Comments",
         "positive": "Positive",
         "negative": "Negative"
     },
     "login": {
         "title": "Sign in",
-        "subtitle": "Sign in to oikui",
-        "subtitleRegister": "Create your oikui account",
+        "subtitle": "Sign in to MoodFlow",
+        "subtitleRegister": "Create your MoodFlow account",
         "email": "Email",
         "password": "Password",
         "name": "Name",
@@ -53,11 +66,82 @@
         "errorRegister": "Unable to register",
         "switchToRegister": "No account? Register",
         "switchToLogin": "Already have an account? Sign in",
+        "backHome": "Back to Home",
         "passwordMismatch": "Passwords do not match",
         "registerSuccess": "Registration successful! Please sign in."
     },
+    "commentsTable": {
+        "searchPlaceholder": "Search by text...",
+        "filters": {
+            "all": "All sentiments",
+            "positive": "🟢 Positive only",
+            "negative": "🔴 Negative only",
+            "neutral": "⚪️ Neutral",
+            "toxic": "☣️ Toxic only"
+        },
+        "exportButton": "Excel",
+        "printButton": "Print",
+        "columns": {
+            "author": "Author",
+            "comment": "Comment",
+            "aiAnalysis": "AI Analysis"
+        },
+        "toxicBadge": "TOXIC",
+        "empty": "Nothing found",
+        "resetFilters": "Reset filters",
+        "yes": "YES",
+        "no": "No",
+        "export": {
+            "fileName": "Sentiment_Analysis",
+            "author": "Author",
+            "text": "Text",
+            "sentiment": "Sentiment",
+            "confidence": "Confidence",
+            "toxicity": "Toxicity",
+            "date": "Date"
+        }
+    },
+    "statsCards": {
+        "total": "Total",
+        "positive": "Positive",
+        "negative": "Negative",
+        "toxic": "Toxic"
+    },
+    "sentimentChart": {
+        "labels": {
+            "positive": "Positive",
+            "negative": "Negative",
+            "neutral": "Neutral",
+            "toxic": "Toxic"
+        }
+    },
+    "trendChart": {
+        "grouping": "Grouping",
+        "empty": "No data",
+        "tooltip": {
+            "time": "Time"
+        },
+        "datasets": {
+            "positive": "Positive",
+            "negative": "Negative",
+            "neutral": "Neutral",
+            "toxic": "Toxic"
+        },
+        "frames": {
+            "1m": "1m",
+            "30m": "30m",
+            "1h": "1h",
+            "4h": "4h",
+            "12h": "12h",
+            "1d": "1d"
+        }
+    },
+    "keywordCloud": {
+        "title": "Key topics",
+        "reset": "Reset"
+    },
     "aiSummary": {
-        "title": "Gemini intelligent brief",
+        "title": "AI intelligent brief",
         "loading": "Gemini is preparing the intelligent brief...",
         "fallback": "The summary will appear after analysis completes."
     },
@@ -65,11 +149,11 @@
         "badge": "AI Sentiment Intelligence Platform",
         "titlePrefix": "Analyze Social Media",
         "titleAccent": "Sentiment with AI",
-        "subtitle": "oikui helps you analyze Telegram and YouTube comments, detect toxic speech, and visualize trends in a professional dashboard built for modern AI-driven decision making.",
+        "subtitle": "MoodFlow helps you analyze Telegram and YouTube comments, detect toxic speech, and visualize trends in a professional dashboard built for modern AI-driven decision making.",
         "ctaStart": "Get Started",
-        "ctaDashboard": "Open Dashboard",
+        "ctaDashboard": "Open analysis page",
         "ctaDemo": "View Demo",
-        "featuresTitle": "Why Teams Choose oikui",
+        "featuresTitle": "Why Choose MoodFlow",
         "featuresSubtitle": "Production-ready sentiment monitoring tools for creators, analysts, and product teams.",
         "features": {
             "deep": {

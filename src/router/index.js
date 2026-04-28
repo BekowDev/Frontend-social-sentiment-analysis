@@ -38,7 +38,7 @@ router.beforeEach((to, from, next) => {
         return;
     }
 
-    const isAuthPage = to.name === 'Landing' || to.name === 'Login';
+    const isAuthPage = to.name === 'Login';
     if (auth.isLoggedIn && isAuthPage) {
         next({ name: 'Dashboard' });
         return;

@@ -1,16 +1,22 @@
 export function useHighlight() {
-    const highlightText = (text, query) => {
-        if (!query) return text;
+    const highlightTextParts = (text, query) => {
+        const safeText = String(text || '');
+        const safeQuery = String(query || '').trim();
+        if (!safeQuery) {
+            return [{ value: safeText, matched: false }];
+        }
 
-        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedQuery = safeQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         const regex = new RegExp(`(${escapedQuery})`, 'gi');
-
-        return text.replace(
-            regex,
-            '<mark class="bg-yellow-200 px-0.5 rounded text-black font-semibold">$1</mark>'
-        );
+        const parts = safeText.split(regex);
+        return parts
+            .filter((part) => part.length > 0)
+            .map((part) => ({
+                value: part,
+                matched: part.toLowerCase() === safeQuery.toLowerCase(),
+            }));
     };
 
-    return { highlightText };
+    return { highlightTextParts };
 }
