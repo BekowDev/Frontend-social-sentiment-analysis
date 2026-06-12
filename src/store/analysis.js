@@ -95,15 +95,16 @@ export const useAnalysisStore = defineStore("analysis", {
                 return;
             }
 
-            this.summary = {
-                content: String(rawSummary.content || "").trim(),
-                keyPoints: Array.isArray(rawSummary.keyPoints)
-                    ? rawSummary.keyPoints
-                          .map((item) => String(item || "").trim())
-                          .filter(Boolean)
-                          .slice(0, 4)
-                    : [],
-            };
+            const ru = String(rawSummary.ru || "").trim();
+            const kk = String(rawSummary.kk || "").trim();
+            const en = String(rawSummary.en || "").trim();
+
+            if (!ru && !kk && !en) {
+                this.summary = null;
+                return;
+            }
+
+            this.summary = { ru, kk, en };
         },
         normalizeCommentDate(value) {
             if (value == null || value === "") {
@@ -183,19 +184,13 @@ export const useAnalysisStore = defineStore("analysis", {
             const aiSummary =
                 result.aiSummary && typeof result.aiSummary === "object"
                     ? {
-                          content: String(
-                              result.aiSummary.content || "",
-                          ).trim(),
-                          keyPoints: Array.isArray(result.aiSummary.keyPoints)
-                              ? result.aiSummary.keyPoints
-                                    .map((item) => String(item || "").trim())
-                                    .filter(Boolean)
-                              : [],
+                          ru: String(result.aiSummary.ru || "").trim(),
+                          kk: String(result.aiSummary.kk || "").trim(),
+                          en: String(result.aiSummary.en || "").trim(),
                       }
                     : null;
             const normalizedAiSummary =
-                aiSummary &&
-                (aiSummary.content || aiSummary.keyPoints.length > 0)
+                aiSummary && (aiSummary.ru || aiSummary.kk || aiSummary.en)
                     ? aiSummary
                     : null;
 

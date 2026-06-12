@@ -6,26 +6,33 @@
     import SkeletonLoader from '@/components/SkeletonLoader.vue';
 
     const analysisStore = useAnalysisStore();
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     const { isLoading, summary } = storeToRefs(analysisStore);
 
-    const normalizedSummary = computed(() => {
-        return String(summary.value?.content || '').trim();
+    const currentLocale = computed(() => {
+        const value = String(locale.value || 'ru').toLowerCase();
+        if (value === 'ru' || value === 'kk' || value === 'en') {
+            return value;
+        }
+        return 'ru';
     });
 
-    const normalizedKeyPoints = computed(() => {
-        const list = Array.isArray(summary.value?.keyPoints)
-            ? summary.value.keyPoints
-            : [];
-        return list
-            .map((item) => String(item || '').trim())
-            .filter(Boolean)
-            .slice(0, 4);
+    const localizedSummary = computed(() => {
+        if (!summary.value || typeof summary.value !== 'object') {
+            return '';
+        }
+
+        const text = summary.value[currentLocale.value];
+        if (typeof text === 'string' && text.trim().length > 0) {
+            return text.trim();
+        }
+
+        const fallback =
+            summary.value.ru || summary.value.en || summary.value.kk || '';
+        return String(fallback).trim();
     });
 
-    const hasSummaryData = computed(() => {
-        return normalizedSummary.value.length > 0 || normalizedKeyPoints.value.length > 0;
-    });
+    const hasSummaryData = computed(() => localizedSummary.value.length > 0);
 </script>
 
 <template>
@@ -48,22 +55,10 @@
 
             <div v-else class="space-y-4">
                 <p
-                    v-if="normalizedSummary"
-                    class="text-lg font-medium leading-relaxed text-gray-900 dark:text-gray-100">
-                    {{ normalizedSummary }}
+                    v-if="localizedSummary"
+                    class="text-lg font-medium leading-relaxed whitespace-pre-line text-gray-900 dark:text-gray-100">
+                    {{ localizedSummary }}
                 </p>
-
-                <ul
-                    v-if="normalizedKeyPoints.length > 0"
-                    class="space-y-2">
-                    <li
-                        v-for="(point, index) in normalizedKeyPoints"
-                        :key="`${index}-${point}`"
-                        class="flex items-start gap-2 text-sm text-gray-900 dark:text-gray-100">
-                        <span class="mt-0.5 text-blue-500">✦</span>
-                        <span>{{ point }}</span>
-                    </li>
-                </ul>
             </div>
         </div>
     </section>
