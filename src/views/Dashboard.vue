@@ -1,188 +1,130 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useAnalysisStore } from "@/store/analysis";
-import { storeToRefs } from "pinia";
-import { useI18n } from "vue-i18n";
-import { useNotifications } from "@/composables/useNotifications";
-import StatsCards from "@/components/analysis/StatsCards.vue";
-import AiSummary from "@/components/analysis/AiSummary.vue";
-import KeywordCloud from "@/components/analysis/KeywordCloud.vue";
-import CommentsTable from "@/components/analysis/CommentsTable.vue";
-import SentimentChart from "@/components/SentimentChart.vue";
-import SentimentTrendChart from "@/components/analysis/SentimentTrendChart.vue";
-
-const analysisStore = useAnalysisStore();
-const { t } = useI18n();
-const { results, isLoading, analysisProgress, analysisStatus, history } =
-    storeToRefs(analysisStore);
-const { toast, showNotify } = useNotifications();
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useAnalysisStore } from '@/store/analysis'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+import { useNotifications } from '@/composables/useNotifications'
+import StatsCards from '@/components/analysis/StatsCards.vue'
+import AiSummary from '@/components/analysis/AiSummary.vue'
+import KeywordCloud from '@/components/analysis/KeywordCloud.vue'
+import CommentsTable from '@/components/analysis/CommentsTable.vue'
+import SentimentChart from '@/components/SentimentChart.vue'
+import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue'
+import MediaPreview from '@/components/MediaPreview.vue' // Проверь правильность пути
+const analysisStore = useAnalysisStore()
+const { t } = useI18n()
+const { results, isLoading, analysisProgress, analysisStatus, history } = storeToRefs(analysisStore)
+const { toast, showNotify } = useNotifications()
 
 const form = ref({
-    url: "https://t.me/petya_english/5478",
-    mode: "fast",
-});
-const searchQuery = ref("");
-const filterSentiment = ref("all");
+    url: 'https://t.me/petya_english/5864',
+    mode: 'fast',
+})
+const searchQuery = ref('')
+const filterSentiment = ref('all')
 
-const hasStartedAnalysis = computed(
-    () => isLoading.value || Boolean(results.value),
-);
-const recentHistory = computed(() => history.value.slice(0, 3));
+const hasStartedAnalysis = computed(() => isLoading.value || Boolean(results.value))
+const recentHistory = computed(() => history.value.slice(0, 3))
 
 onMounted(() => {
     if (history.value.length > 0) {
-        return;
+        return
     }
 
     analysisStore.fetchHistory().catch(() => {
-        showNotify(t("dashboard.analysisError"), "error");
-    });
-});
+        showNotify(t('dashboard.analysisError'), 'error')
+    })
+})
 
 const startAnalysis = async () => {
-    if (!form.value.url)
-        return showNotify(t("dashboard.invalidLinkError"), "error");
+    if (!form.value.url) return showNotify(t('dashboard.invalidLinkError'), 'error')
 
-    searchQuery.value = "";
-    filterSentiment.value = "all";
+    searchQuery.value = ''
+    filterSentiment.value = 'all'
 
     try {
-        await analysisStore.fetchAnalysis(form.value);
-        showNotify(t("dashboard.analysisSuccess"), "success");
+        await analysisStore.fetchAnalysis(form.value)
+        showNotify(t('dashboard.analysisSuccess'), 'success')
         analysisStore.fetchHistory().catch(() => {
-            showNotify(t("dashboard.analysisError"), "error");
-        });
+            showNotify(t('dashboard.analysisError'), 'error')
+        })
     } catch (e) {
-        showNotify(
-            analysisStore.error || t("dashboard.analysisError"),
-            "error",
-        );
+        showNotify(analysisStore.error || t('dashboard.analysisError'), 'error')
     }
-};
+}
 
 const handleKeywordSelect = (word) => {
-    searchQuery.value = word;
+    searchQuery.value = word
     if (word) {
-        const tableElement = document.getElementById("comments-table");
+        const tableElement = document.getElementById('comments-table')
         if (tableElement) {
-            tableElement.scrollIntoView({ behavior: "smooth" });
+            tableElement.scrollIntoView({ behavior: 'smooth' })
         }
     }
-};
+}
 
 onUnmounted(() => {
-    analysisStore.clearPollingTimer();
-});
+    analysisStore.clearPollingTimer()
+})
 </script>
 
 <template>
-    <div
-        id="main-content"
-        class="h-screen overflow-y-auto bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100 pt-10"
-    >
+    <div id="main-content" class="h-screen overflow-y-auto bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100 pt-10">
         <div class="mx-auto max-w-7xl px-6">
-            <div
-                class="no-print"
-                :class="
-                    hasStartedAnalysis
-                        ? 'pb-10'
-                        : 'flex min-h-[calc(100vh-6rem)] items-center justify-center pb-10'
-                "
-            >
+            <div class="no-print" :class="hasStartedAnalysis ? 'pb-10' : 'flex min-h-[calc(100vh-6rem)] items-center justify-center pb-10'">
                 <transition name="search-shift" mode="out-in">
-                    <div
-                        :key="hasStartedAnalysis ? 'compact' : 'centered'"
-                        :class="
-                            hasStartedAnalysis
-                                ? 'mx-auto mt-2 w-full max-w-3xl'
-                                : 'mx-auto w-full max-w-3xl'
-                        "
-                    >
+                    <div :key="hasStartedAnalysis ? 'compact' : 'centered'" :class="hasStartedAnalysis ? 'mx-auto mt-2 w-full max-w-3xl' : 'mx-auto w-full max-w-3xl'">
                         <div class="text-center">
-                            <h1
-                                class="text-5xl font-semibold tracking-tight text-gray-700 dark:text-gray-100"
-                            >
-                                {{ t("dashboard.title") }}
+                            <h1 class="text-5xl font-semibold tracking-tight text-gray-700 dark:text-gray-100">
+                                {{ t('dashboard.title') }}
                             </h1>
-                            <p
-                                v-if="!hasStartedAnalysis"
-                                class="mt-2 text-sm text-gray-500 dark:text-gray-400"
-                            >
-                                {{ t("dashboard.subtitle") }}
+                            <p v-if="!hasStartedAnalysis" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                {{ t('dashboard.subtitle') }}
                             </p>
                         </div>
 
-                        <p
-                            class="mt-8 mb-2 text-center text-sm text-gray-500 dark:text-gray-400"
-                        >
-                            {{ t("dashboard.enterLink") }}
+                        <p class="mt-8 mb-2 text-center text-sm text-gray-500 dark:text-gray-400">
+                            {{ t('dashboard.enterLink') }}
                         </p>
 
-                        <div
-                            class="rounded-full bg-white p-2 shadow-[0_20px_55px_-26px_rgba(15,23,42,0.35)] dark:bg-gray-800 dark:shadow-[0_26px_70px_-34px_rgba(2,6,23,0.75)]"
-                        >
-                            <div
-                                class="flex flex-col gap-3 md:flex-row whitespace-nowrap"
-                            >
+                        <div class="rounded-full bg-white p-2 shadow-[0_20px_55px_-26px_rgba(15,23,42,0.35)] dark:bg-gray-800 dark:shadow-[0_26px_70px_-34px_rgba(2,6,23,0.75)]">
+                            <div class="flex flex-col gap-3 md:flex-row whitespace-nowrap">
                                 <input
                                     v-model="form.url"
-                                    :placeholder="
-                                        t('dashboard.linkPlaceholder')
-                                    "
+                                    :placeholder="t('dashboard.linkPlaceholder')"
                                     class="w-full rounded-full border border-gray-200 bg-gray-50 px-6 py-4 text-base text-gray-900 outline-none transition focus:bg-white focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:ring-blue-400/20"
                                 />
-                                <div
-                                    class="flex items-center rounded-full border border-gray-200 bg-gray-100 px-5 py-3 transition focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:focus-within:ring-blue-400/20"
-                                >
-                                    <select
-                                        v-model="form.mode"
-                                        class="min-w-[140px] cursor-pointer bg-transparent pr-3 text-sm font-medium text-gray-900 outline-none dark:text-gray-100"
-                                    >
+                                <div class="flex items-center rounded-full border border-gray-200 bg-gray-100 px-5 py-3 transition focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-700 dark:focus-within:ring-blue-400/20">
+                                    <select v-model="form.mode" class="min-w-[140px] cursor-pointer bg-transparent pr-3 text-sm font-medium text-gray-900 outline-none dark:text-gray-100">
                                         <option value="fast">
-                                            {{ t("dashboard.fastMode") }}
+                                            {{ t('dashboard.fastMode') }}
                                         </option>
                                         <option value="deep">
-                                            {{ t("dashboard.deepMode") }}
+                                            {{ t('dashboard.deepMode') }}
                                         </option>
                                     </select>
                                 </div>
-                                <button
-                                    @click="startAnalysis"
-                                    :disabled="isLoading"
-                                    class="rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
-                                >
-                                    {{
-                                        isLoading
-                                            ? analysisStatus ||
-                                              t("dashboard.analyzing")
-                                            : t("dashboard.startAnalysis")
-                                    }}
+                                <button @click="startAnalysis" :disabled="isLoading" class="rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">
+                                    {{ isLoading ? analysisStatus || t('dashboard.analyzing') : t('dashboard.startAnalysis') }}
                                 </button>
                             </div>
                         </div>
-
+                        <MediaPreview :url="form.url" />
                         <div v-if="!hasStartedAnalysis" class="mt-8">
-                            <p
-                                class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400"
-                            >
-                                {{ t("dashboard.recentAnalyses") }}
+                            <p class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                {{ t('dashboard.recentAnalyses') }}
                             </p>
                             <div class="flex flex-wrap gap-2">
                                 <button
                                     v-for="item in recentHistory"
                                     :key="item._id"
-                                    @click="
-                                        analysisStore.loadFromHistory(item._id)
-                                    "
+                                    @click="analysisStore.loadFromHistory(item._id)"
                                     class="max-w-full truncate rounded-full bg-gray-100 px-4 py-2 text-xs text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
                                     {{ item.postLink }}
                                 </button>
-                                <p
-                                    v-if="recentHistory.length === 0"
-                                    class="text-xs text-gray-400 dark:text-gray-400"
-                                >
-                                    {{ t("dashboard.historyEmpty") }}
+                                <p v-if="recentHistory.length === 0" class="text-xs text-gray-400 dark:text-gray-400">
+                                    {{ t('dashboard.historyEmpty') }}
                                 </p>
                             </div>
                         </div>
@@ -190,132 +132,62 @@ onUnmounted(() => {
                 </transition>
             </div>
 
-            <div
-                v-if="hasStartedAnalysis"
-                class="mx-auto mt-2 max-w-7xl space-y-8 pb-16"
-            >
-                <div
-                    v-if="isLoading"
-                    class="no-print rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                >
-                    <p
-                        class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400"
-                    >
-                        {{ analysisStatus || t("dashboard.progressDefault") }}
+            <div v-if="hasStartedAnalysis" class="mx-auto mt-2 max-w-7xl space-y-8 pb-16">
+                <div v-if="isLoading" class="no-print rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <p class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ analysisStatus || t('dashboard.progressDefault') }}
                     </p>
-                    <div
-                        class="h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800"
-                    >
-                        <div
-                            class="h-full rounded-full bg-blue-500 transition-all duration-500 ease-out"
-                            :style="{ width: `${analysisProgress}%` }"
-                        ></div>
+                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                        <div class="h-full rounded-full bg-blue-500 transition-all duration-500 ease-out" :style="{ width: `${analysisProgress}%` }"></div>
                     </div>
                 </div>
 
-                <AiSummary
-                    v-if="isLoading || results"
-                    class="no-print"
-                />
+                <AiSummary v-if="isLoading || results" class="no-print" />
 
-                <div
-                    v-if="results"
-                    id="dashboard-print-root"
-                    class="space-y-8"
-                >
-                    <div
-                        class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch"
-                    >
-                        <StatsCards
-                            :stats="results.stats"
-                            class="h-full rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                        />
+                <div v-if="results" id="dashboard-print-root" class="space-y-8">
+                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                        <StatsCards :stats="results.stats" class="h-full rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800" />
 
-                        <div
-                            class="h-full flex flex-col rounded-3xl border-gray-300 bg-white p-8 shadow-sm dark:border-gray-500 dark:bg-gray-800"
-                        >
-                            <h3
-                                class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400"
-                            >
-                                {{ t("dashboard.reactionsTitle") }}
+                        <div class="h-full flex flex-col rounded-3xl border-gray-300 bg-white p-8 shadow-sm dark:border-gray-500 dark:bg-gray-800">
+                            <h3 class="mb-4 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400">
+                                {{ t('dashboard.reactionsTitle') }}
                             </h3>
-                            <div
-                                v-if="
-                                    results.reactions &&
-                                    results.reactions.length > 0
-                                "
-                                class="flex flex-wrap gap-3 flex-1 content-start"
-                            >
-                                <div
-                                    v-for="(react, index) in results.reactions"
-                                    :key="index"
-                                    class="flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/40 px-4 py-2 dark:border-gray-600 dark:bg-gray-800/60"
-                                >
-                                    <span class="text-xl">{{
-                                        react.emoji
-                                    }}</span>
-                                    <span
-                                        class="text-sm font-semibold text-gray-700 dark:text-gray-200"
-                                        >{{ react.count }}</span
-                                    >
+                            <div v-if="results.reactions && results.reactions.length > 0" class="flex flex-wrap gap-3 flex-1 content-start">
+                                <div v-for="(react, index) in results.reactions" :key="index" class="flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/40 px-4 py-2 dark:border-gray-600 dark:bg-gray-800/60">
+                                    <span class="text-xl">{{ react.emoji }}</span>
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ react.count }}</span>
                                 </div>
                             </div>
-                            <div
-                                v-else
-                                class="flex-1 flex items-center justify-center text-gray-400 text-sm"
-                            >
-                                {{ t("dashboard.noReactionsData") }}
+                            <div v-else class="flex-1 flex items-center justify-center text-gray-400 text-sm">
+                                {{ t('dashboard.noReactionsData') }}
                             </div>
                         </div>
 
-                        <div
-                            class="h-full flex flex-col rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                        >
-                            <h3
-                                class="mb-4 text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400"
-                            >
-                                {{ t("dashboard.progressRatioTitle") }}
+                        <div class="h-full flex flex-col rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                            <h3 class="mb-4 text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
+                                {{ t('dashboard.progressRatioTitle') }}
                             </h3>
-                            <div
-                                class="flex-1 flex items-center justify-center min-h-[200px] w-full"
-                            >
+                            <div class="flex-1 flex items-center justify-center min-h-[200px] w-full">
                                 <SentimentChart :stats="results.stats" />
                             </div>
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        <KeywordCloud
-                            :comments="results.comments"
-                            :activeKeyword="searchQuery"
-                            @select="handleKeywordSelect"
-                        />
+                    <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <KeywordCloud :comments="results.comments" :activeKeyword="searchQuery" @select="handleKeywordSelect" />
                     </div>
 
-                    <div
-                        class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        <h3
-                            class="mb-6 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400"
-                        >
-                            {{ t("dashboard.trendTitle") }}
+                    <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <h3 class="mb-6 text-xs font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400">
+                            {{ t('dashboard.trendTitle') }}
                         </h3>
                         <div class="h-80 w-full">
                             <SentimentTrendChart :comments="results.comments" />
                         </div>
                     </div>
 
-                    <div
-                        id="comments-table"
-                        class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        <CommentsTable
-                            :comments="results.comments"
-                            v-model:searchQuery="searchQuery"
-                            v-model:filterSentiment="filterSentiment"
-                        />
+                    <div id="comments-table" class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                        <CommentsTable :comments="results.comments" v-model:searchQuery="searchQuery" v-model:filterSentiment="filterSentiment" />
                     </div>
                 </div>
             </div>
@@ -332,12 +204,8 @@ onUnmounted(() => {
                 }"
                 @click="toast.show = false"
             >
-                <span class="text-xl font-bold">{{
-                    toast.type === "error" ? "!" : "i"
-                }}</span>
-                <span class="font-medium tracking-wide">{{
-                    toast.message
-                }}</span>
+                <span class="text-xl font-bold">{{ toast.type === 'error' ? '!' : 'i' }}</span>
+                <span class="font-medium tracking-wide">{{ toast.message }}</span>
             </div>
         </transition>
     </div>

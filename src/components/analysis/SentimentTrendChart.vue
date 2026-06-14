@@ -1,32 +1,12 @@
 <script setup>
 import { computed, ref, watch, nextTick } from "vue";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from "chart.js";
 import { Line } from "vue-chartjs";
 import zoomPlugin from "chartjs-plugin-zoom";
 import "hammerjs";
 import { useI18n } from "vue-i18n";
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler,
-    zoomPlugin,
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, zoomPlugin);
 
 const props = defineProps({
     comments: {
@@ -90,8 +70,7 @@ const formatBucketLabel = (bucketTs, intervalMs) => {
 };
 
 const chartData = computed(() => {
-    if (!props.comments || props.comments.length === 0)
-        return { labels: [], datasets: [] };
+    if (!props.comments || props.comments.length === 0) return { labels: [], datasets: [] };
 
     const comments = Array.isArray(props.comments) ? props.comments : [];
     const interval = activeFrame.value;
@@ -142,12 +121,8 @@ const chartData = computed(() => {
         }
     });
 
-    const sortedBuckets = Object.values(buckets).sort(
-        (a, b) => a.bucketTs - b.bucketTs,
-    );
-    const labels = sortedBuckets.map((bucket) =>
-        formatBucketLabel(bucket.bucketTs, interval),
-    );
+    const sortedBuckets = Object.values(buckets).sort((a, b) => a.bucketTs - b.bucketTs);
+    const labels = sortedBuckets.map((bucket) => formatBucketLabel(bucket.bucketTs, interval));
     const positiveData = sortedBuckets.map((bucket) => bucket.positive || 0);
     const negativeData = sortedBuckets.map((bucket) => bucket.negative || 0);
     const neutralData = sortedBuckets.map((bucket) => bucket.neutral || 0);
@@ -207,9 +182,7 @@ const chartData = computed(() => {
 
 const chartRenderKey = computed(() => {
     const labels = chartData.value.labels.join("|");
-    const values = chartData.value.datasets
-        .map((dataset) => dataset.data.join(","))
-        .join("|");
+    const values = chartData.value.datasets.map((dataset) => dataset.data.join(",")).join("|");
     return `${activeFrame.value}-${labels}-${values}`;
 });
 
@@ -246,9 +219,7 @@ const chartOptions = computed(() => ({
             callbacks: {
                 title: (items) => {
                     const label = items[0].label;
-                    const frameName =
-                        frames.value.find((f) => f.value === activeFrame.value)
-                            ?.label || "";
+                    const frameName = frames.value.find((f) => f.value === activeFrame.value)?.label || "";
                     return `${t("trendChart.tooltip.time")}: ${label} (${frameName})`;
                 },
             },
@@ -279,10 +250,7 @@ const chartOptions = computed(() => ({
         y: {
             beginAtZero: true,
             grid: {
-                color: () =>
-                    document.documentElement.classList.contains("dark")
-                        ? "rgba(255, 255, 255, 0.05)"
-                        : "rgba(15, 23, 42, 0.04)",
+                color: () => (document.documentElement.classList.contains("dark") ? "rgba(255, 255, 255, 0.05)" : "rgba(15, 23, 42, 0.04)"),
             },
             ticks: {
                 stepSize: 1,
@@ -299,31 +267,19 @@ const chartOptions = computed(() => ({
 </script>
 
 <template>
-    <div
-        class="relative flex h-full w-full flex-col rounded-3xl bg-white p-6 shadow-sm dark:bg-gray-800"
-    >
-        <div
-            class="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2 dark:border-gray-700"
-        >
-            <div
-                class="hidden text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 sm:block"
-            >
+    <div class="relative flex h-full w-full flex-col rounded-3xl bg-white p-6 shadow-sm dark:bg-gray-800">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2 dark:border-gray-700">
+            <div class="hidden text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 sm:block">
                 {{ t("trendChart.grouping") }}
             </div>
 
-            <div
-                class="no-scrollbar flex overflow-x-auto rounded-full border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-700"
-            >
+            <div class="no-scrollbar flex overflow-x-auto rounded-full border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-700">
                 <button
                     v-for="frame in frames"
                     :key="frame.value"
                     @click="setFrame(frame.value)"
                     class="whitespace-nowrap border-r border-gray-200 px-4 py-2 text-[10px] font-bold uppercase transition-all last:border-r-0 focus:outline-none dark:border-gray-600"
-                    :class="[
-                        activeFrame === frame.value
-                            ? 'bg-blue-600 text-white shadow-inner'
-                            : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-blue-300',
-                    ]"
+                    :class="[activeFrame === frame.value ? 'bg-blue-600 text-white shadow-inner' : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-blue-300']"
                 >
                     {{ frame.label }}
                 </button>
@@ -331,20 +287,10 @@ const chartOptions = computed(() => ({
         </div>
 
         <div class="flex-1 relative min-h-0 cursor-grab active:cursor-grabbing">
-            <Line
-                :key="chartRenderKey"
-                ref="chartRef"
-                :data="chartData"
-                :options="chartOptions"
-            />
+            <Line :key="chartRenderKey" ref="chartRef" :data="chartData" :options="chartOptions" />
 
-            <div
-                v-if="chartData.labels.length === 0"
-                class="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-white/80 backdrop-blur-[2px] dark:bg-gray-800/80"
-            >
-                <p
-                    class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400"
-                >
+            <div v-if="chartData.labels.length === 0" class="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-white/80 backdrop-blur-[2px] dark:bg-gray-800/80">
+                <p class="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     {{ t("trendChart.empty") }}
                 </p>
             </div>

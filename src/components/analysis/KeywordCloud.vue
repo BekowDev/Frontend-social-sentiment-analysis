@@ -18,9 +18,7 @@ const { t } = useI18n();
 const topKeywords = computed(() => {
     if (!props.comments.length) return [];
 
-    const allText = props.comments
-        .map((c) => String(c?.content || c?.text || "").toLowerCase())
-        .join(" ");
+    const allText = props.comments.map((c) => String(c?.content || c?.text || "").toLowerCase()).join(" ");
     const words = allText.match(/[а-яА-ЯёЁa-zA-Z]+/g) || [];
     const stopWords = [
         // РУССКИЙ
@@ -192,17 +190,11 @@ const topKeywords = computed(() => {
 <template>
     <div v-if="topKeywords.length" class="flex h-full flex-col p-2">
         <div class="mb-4 flex items-center justify-between">
-            <h3
-                class="text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400"
-            >
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
                 {{ t("keywordCloud.title") }}
             </h3>
 
-            <button
-                v-if="activeKeyword"
-                @click="emit('select', '')"
-                class="group flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-500 transition hover:text-red-700 dark:text-red-300 dark:hover:text-red-200"
-            >
+            <button v-if="activeKeyword" @click="emit('select', '')" class="group flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-500 transition hover:text-red-700 dark:text-red-300 dark:hover:text-red-200">
                 <span>✕ {{ t("keywordCloud.reset") }}</span>
             </button>
         </div>
@@ -212,22 +204,11 @@ const topKeywords = computed(() => {
                 v-for="item in topKeywords"
                 :key="item.word"
                 @click="emit('select', item.word)"
-                :class="
-                    activeKeyword === item.word
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'
-                "
+                :class="activeKeyword === item.word ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300'"
                 class="flex items-center gap-2 rounded-full px-4 py-1 text-sm font-medium transition-all"
             >
                 <span>#{{ item.word }}</span>
-                <span
-                    :class="
-                        activeKeyword === item.word
-                            ? 'bg-white/20 text-white'
-                            : 'bg-blue-100 text-blue-700 dark:bg-blue-800/60 dark:text-blue-200'
-                    "
-                    class="rounded-full px-1.5 py-0.5 text-[10px] font-bold"
-                >
+                <span :class="activeKeyword === item.word ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700 dark:bg-blue-800/60 dark:text-blue-200'" class="rounded-full px-1.5 py-0.5 text-[10px] font-bold">
                     {{ item.count }}
                 </span>
             </button>

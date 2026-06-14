@@ -1,10 +1,10 @@
-import { createI18n } from 'vue-i18n';
-import ru from '@/locales/ru.json';
-import en from '@/locales/en.json';
-import kk from '@/locales/kk.json';
+import { createI18n } from "vue-i18n";
+import ru from "@/locales/ru.json";
+import en from "@/locales/en.json";
+import kk from "@/locales/kk.json";
 
-const LOCALE_STORAGE_KEY = 'moodscope-locale';
-const SUPPORTED_LOCALES = ['ru', 'en', 'kk'];
+const LOCALE_STORAGE_KEY = "moodscope-locale";
+const SUPPORTED_LOCALES = ["ru", "en", "kk"];
 
 function detectInitialLocale() {
     const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
@@ -17,18 +17,18 @@ function detectInitialLocale() {
         return browserLocale;
     }
 
-    return 'ru';
+    return "ru";
 }
 
 export const i18n = createI18n({
     legacy: false,
     locale: detectInitialLocale(),
-    fallbackLocale: 'ru',
+    fallbackLocale: "ru",
     messages: { ru, en, kk },
 });
 
 function applyI18nLocale(nextLocale) {
-    if (typeof i18n.global.locale === 'string') {
+    if (typeof i18n.global.locale === "string") {
         i18n.global.locale = nextLocale;
         return;
     }
@@ -42,7 +42,7 @@ export function setAppLocale(locale) {
     }
 
     applyI18nLocale(locale);
-    document.documentElement.setAttribute('lang', locale);
+    document.documentElement.setAttribute("lang", locale);
     localStorage.setItem(LOCALE_STORAGE_KEY, locale);
 }
 
