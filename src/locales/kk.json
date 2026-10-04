@@ -64,6 +64,7 @@
         "loadingRegister": "Тіркелу...",
         "error": "Кіру мүмкін болмады",
         "errorRegister": "Тіркелу мүмкін болмады",
+        "guestLogin": "Қонақ ретінде кіру",
         "switchToRegister": "Аккаунтыңыз жоқ па? Тіркелу",
         "switchToLogin": "Аккаунтыңыз бар ма? Кіру",
         "backHome": "Басты бетке оралу",

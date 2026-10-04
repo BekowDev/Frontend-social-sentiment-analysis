@@ -1,6 +1,6 @@
-export const MOCK_DELAY_MS = 500;
+export const MOCK_DELAY_MS = 500
 
-export const MOCK_DEMO_URL = 'https://www.youtube.com/watch?v=moodflow-demo';
+export const MOCK_DEMO_URL = 'https://www.youtube.com/watch?v=QChxpOUxLDY'
 
 export const MOCK_KEYWORDS = [
     { word: 'fast', count: 86 },
@@ -8,13 +8,13 @@ export const MOCK_KEYWORDS = [
     { word: 'awesome update', count: 41 },
     { word: 'crash', count: 37 },
     { word: 'love it', count: 33 },
-];
+]
 
-const TOTAL_COMMENTS = 1420;
-const POSITIVE_SHARE = 68;
-const NEGATIVE_SHARE = 14;
-const NEUTRAL_SHARE = 18;
-const TOXICITY_SCORE = 3.2;
+const TOTAL_COMMENTS = 1420
+const POSITIVE_SHARE = 68
+const NEGATIVE_SHARE = 14
+const NEUTRAL_SHARE = 18
+const TOXICITY_SCORE = 3.2
 
 export const MOCK_STATS = {
     total: TOTAL_COMMENTS,
@@ -26,7 +26,7 @@ export const MOCK_STATS = {
     negativePercent: NEGATIVE_SHARE,
     neutralPercent: NEUTRAL_SHARE,
     toxicityScore: TOXICITY_SCORE,
-};
+}
 
 const commentsSeed = [
     {
@@ -189,12 +189,12 @@ const commentsSeed = [
         date: '2026-10-04T07:58:00.000Z',
         analysis: { sentiment: 'positive', confidence: 94, is_toxic: false },
     },
-];
+]
 
 export const MOCK_COMMENTS = commentsSeed.map((comment) => ({
     ...comment,
     content: comment.text,
-}));
+}))
 
 export const MOCK_REACTIONS = [
     { emoji: '🔥', count: 312 },
@@ -202,11 +202,11 @@ export const MOCK_REACTIONS = [
     { emoji: '❤️', count: 191 },
     { emoji: '😮', count: 64 },
     { emoji: '👎', count: 29 },
-];
+]
 
 export function getMockAnalysisResult(url = MOCK_DEMO_URL) {
-    const sourceUrl = String(url || MOCK_DEMO_URL).trim() || MOCK_DEMO_URL;
-    const isTelegram = /t\.me|telegram/i.test(sourceUrl);
+    const sourceUrl = String(url || MOCK_DEMO_URL).trim() || MOCK_DEMO_URL
+    const isTelegram = /t\.me|telegram/i.test(sourceUrl)
 
     return {
         postLink: sourceUrl,
@@ -221,7 +221,7 @@ export function getMockAnalysisResult(url = MOCK_DEMO_URL) {
             kk: 'Аудитория негізінен оң: пікірлердің 68%-ы позитивті. fast және awesome update жиі айтылады, бірақ buggy мен crash шағымдары да бар. Токсичность деңгейі 3.2%.',
             en: 'Overall sentiment is strongly positive (68%). Viewers praise a fast experience and call this an awesome update, while 14% still report a buggy crash. Toxicity stays low at 3.2%.',
         },
-    };
+    }
 }
 
 export function getMockHistory() {
@@ -244,11 +244,11 @@ export function getMockHistory() {
             createdAt: '2026-10-02T12:08:00.000Z',
             executionTimeMs: 1988,
         },
-    ];
+    ]
 }
 
 export function getMockTaskId() {
-    return 'mock-task-live-demo';
+    return 'mock-task-live-demo'
 }
 
 export function createDemoAuthToken() {
@@ -256,17 +256,22 @@ export function createDemoAuthToken() {
         btoa(JSON.stringify(value))
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
-            .replace(/=+$/g, '');
+            .replace(/=+$/g, '')
 
     return `${encode({ alg: 'none', typ: 'JWT' })}.${encode({
         id: 'demo-user',
         email: 'demo@moodflow.app',
         role: 'demo',
-    })}.demo`;
+    })}.demo`
 }
 
 export function isMockEnabled() {
-    const viteFlag = String(import.meta.env.VITE_USE_MOCK || '').toLowerCase();
-    const reactFlag = String(import.meta.env.REACT_APP_USE_MOCK || '').toLowerCase();
-    return ['true', '1', 'yes'].includes(viteFlag) || ['true', '1', 'yes'].includes(reactFlag);
+    const viteFlag = String(import.meta.env.VITE_USE_MOCK || '').toLowerCase()
+    const reactFlag = String(
+        import.meta.env.REACT_APP_USE_MOCK || '',
+    ).toLowerCase()
+    return (
+        ['true', '1', 'yes'].includes(viteFlag) ||
+        ['true', '1', 'yes'].includes(reactFlag)
+    )
 }

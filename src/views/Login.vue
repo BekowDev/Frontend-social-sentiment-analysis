@@ -1,54 +1,59 @@
 <script setup>
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { useAuthStore } from "@/store/auth";
-import { useRouter } from "vue-router";
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/store/auth'
+import { useRouter } from 'vue-router'
 
-const isLoginMode = ref(true);
-const name = ref("");
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
-const auth = useAuthStore();
-const router = useRouter();
-const isLoading = ref(false);
-const { t } = useI18n();
+const isLoginMode = ref(true)
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const auth = useAuthStore()
+const router = useRouter()
+const isLoading = ref(false)
+const { t } = useI18n()
 
 const toggleMode = () => {
-    isLoginMode.value = !isLoginMode.value;
-};
+    isLoginMode.value = !isLoginMode.value
+}
+
+const handleGuestLogin = () => {
+    auth.enterDemoSession()
+    router.push({ name: 'Dashboard', query: { demo: '1' } })
+}
 
 const handleAuth = async () => {
-    isLoading.value = true;
+    isLoading.value = true
     try {
         if (isLoginMode.value) {
-            await auth.login(email.value, password.value);
+            await auth.login(email.value, password.value)
         } else {
             if (password.value !== confirmPassword.value) {
-                throw new Error(t("login.passwordMismatch"));
+                throw new Error(t('login.passwordMismatch'))
             }
             await auth.register({
                 name: name.value,
                 email: email.value,
                 password: password.value,
-            });
-            alert(t("login.registerSuccess"));
-            isLoginMode.value = true;
-            password.value = "";
-            confirmPassword.value = "";
-            isLoading.value = false;
-            return;
+            })
+            alert(t('login.registerSuccess'))
+            isLoginMode.value = true
+            password.value = ''
+            confirmPassword.value = ''
+            isLoading.value = false
+            return
         }
-        router.push({ name: "Dashboard" });
+        router.push({ name: 'Dashboard' })
     } catch (e) {
         const fallback = isLoginMode.value
-            ? t("login.error")
-            : t("login.errorRegister");
-        alert(fallback + ": " + (e.response?.data?.message || e.message || ""));
+            ? t('login.error')
+            : t('login.errorRegister')
+        alert(fallback + ': ' + (e.response?.data?.message || e.message || ''))
     } finally {
-        isLoading.value = false;
+        isLoading.value = false
     }
-};
+}
 </script>
 
 <template>
@@ -64,20 +69,20 @@ const handleAuth = async () => {
                     class="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-300"
                 >
                     <span aria-hidden="true">←</span>
-                    <span>{{ t("login.backHome") }}</span>
+                    <span>{{ t('login.backHome') }}</span>
                 </RouterLink>
 
                 <div class="mb-8 text-center">
                     <h1
                         class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white"
                     >
-                        {{ t("login.title") }}
+                        {{ t('login.title') }}
                     </h1>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         {{
                             isLoginMode
-                                ? t("login.subtitle")
-                                : t("login.subtitleRegister")
+                                ? t('login.subtitle')
+                                : t('login.subtitleRegister')
                         }}
                     </p>
                 </div>
@@ -87,7 +92,7 @@ const handleAuth = async () => {
                         <label
                             class="text-xs font-medium text-gray-500 dark:text-gray-400"
                         >
-                            {{ t("login.name") }}
+                            {{ t('login.name') }}
                         </label>
                         <input
                             v-model="name"
@@ -102,7 +107,7 @@ const handleAuth = async () => {
                         <label
                             class="text-xs font-medium text-gray-500 dark:text-gray-400"
                         >
-                            {{ t("login.email") }}
+                            {{ t('login.email') }}
                         </label>
                         <input
                             v-model="email"
@@ -117,7 +122,7 @@ const handleAuth = async () => {
                         <label
                             class="text-xs font-medium text-gray-500 dark:text-gray-400"
                         >
-                            {{ t("login.password") }}
+                            {{ t('login.password') }}
                         </label>
                         <input
                             v-model="password"
@@ -132,7 +137,7 @@ const handleAuth = async () => {
                         <label
                             class="text-xs font-medium text-gray-500 dark:text-gray-400"
                         >
-                            {{ t("login.confirmPassword") }}
+                            {{ t('login.confirmPassword') }}
                         </label>
                         <input
                             v-model="confirmPassword"
@@ -151,26 +156,36 @@ const handleAuth = async () => {
                         {{
                             isLoading
                                 ? isLoginMode
-                                    ? t("login.loading")
-                                    : t("login.loadingRegister")
+                                    ? t('login.loading')
+                                    : t('login.loadingRegister')
                                 : isLoginMode
-                                  ? t("login.submit")
-                                  : t("login.submitRegister")
+                                  ? t('login.submit')
+                                  : t('login.submitRegister')
                         }}
                     </button>
                 </form>
 
-                <button
-                    type="button"
-                    @click="toggleMode"
-                    class="mt-4 w-full text-center text-sm text-blue-600 transition hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
-                >
-                    {{
-                        isLoginMode
-                            ? t("login.switchToRegister")
-                            : t("login.switchToLogin")
-                    }}
-                </button>
+                <div class="mt-4 space-y-3">
+                    <button
+                        type="button"
+                        @click="handleGuestLogin"
+                        class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:border-blue-400/40 dark:hover:bg-blue-500/10 dark:hover:text-blue-200"
+                    >
+                        {{ t('login.guestLogin') }}
+                    </button>
+
+                    <button
+                        type="button"
+                        @click="toggleMode"
+                        class="w-full text-center text-sm text-blue-600 transition hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+                    >
+                        {{
+                            isLoginMode
+                                ? t('login.switchToRegister')
+                                : t('login.switchToLogin')
+                        }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>

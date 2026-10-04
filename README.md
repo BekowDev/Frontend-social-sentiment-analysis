@@ -1,37 +1,96 @@
-# 🌊 MoodFlow — AI Social Media Sentiment Analysis Platform
+# MoodFlow
 
-> Платформа для автоматизированного анализа тональности и выявления токсичности в комментариях Telegram и YouTube[cite: 1, 2].
+Frontend-приложение для анализа тональности комментариев и реакции аудитории по ссылкам на Telegram и YouTube.
 
-![MoodFlow Preview](./preview.png)
+## Demo version
 
-## 🚀 Live Demo
+Демо-версия проекта: https://fd-mu-liart.vercel.app/
 
-🔗 **[Открыть рабочее демо](https://moodflow-demo.vercel.app)** _(Работает в автономном режиме без необходимости запуска бэкенда)_
+## Что умеет проект
 
----
+- анализировать комментарии по ссылке на Telegram / YouTube
+- показывать статистику по позитивным, негативным, нейтральным и токсичным комментариям
+- визуализировать результаты через графики и карточки метрик
+- выделять ключевые слова и популярные темы
+- поддерживать локальный демо-режим с мок-данными
+- работать на русском, английском и казахском языках
 
-## ✨ Ключевые возможности
+## Технологии
 
-- **Анализ мультиплатформенного контента:** Парсинг и обработка комментариев под видео на YouTube и постами в Telegram[cite: 1].
-- **AI Sentiment Intelligence:** Определение тональности (позитивная, негативная, нейтральная) и расчет уровня токсичности[cite: 1].
-- **Интерактивные дашборды:** Визуализация ключевых метрик, графики трендов и выделение ключевых слов[cite: 1, 2].
-- **Мультиязычность:** Полная поддержка интерфейса на русском, казахском и английском языках (RU / KK / EN)[cite: 2].
-- **Экспорт отчетов:** Возможность выгрузки результатов анализа в Excel / CSV[cite: 2].
+- Vue 3
+- Vite
+- Vue Router
+- Pinia
+- Axios
+- Chart.js
+- Tailwind CSS
+- i18n
 
----
+## Запуск локально
 
-## 🛠 Стек технологий
+1. Установите зависимости:
 
-- **Frontend:** Vue 3 (Composition API), TypeScript, Vite[cite: 1, 2]
-- **State Management & UI:** Pinia / Vuex, Tailwind CSS, Canvas / Chart.js[cite: 1, 2]
-- **API Handling:** Axios, REST API, Streaming Output (Gemini API)[cite: 1, 2]
+```bash
+npm install
+```
 
----
+2. Запустите проект:
 
-## ⚙️ Быстрый запуск локально
+```bash
+npm run dev
+```
 
-1. **Клонируйте репозиторий:**
-    ```bash
-    git clone [https://github.com/BekowDev/Frontend-social-sentiment-analysis.git](https://github.com/BekowDev/Frontend-social-sentiment-analysis.git)
-    cd Frontend-social-sentiment-analysis
-    ```
+3. Откройте приложение в браузере:
+
+```bash
+http://localhost:5173
+```
+
+## Демо-режим с мок-данными
+
+В проекте есть режим демонстрации без backend и без логина.
+
+Убедитесь, что в файле `.env` есть:
+
+```env
+VITE_USE_MOCK=true
+```
+
+После этого можно:
+
+- открыть страницу логина,
+- нажать кнопку "Continue as guest" / "Войти как гость",
+- попасть сразу на dashboard с рабочими мок-данными.
+
+Также в демо-режиме используется ссылка по умолчанию:
+
+```text
+https://www.youtube.com/watch?v=QChxpOUxLDY
+```
+
+## Структура проекта
+
+```text
+src/
+  api/
+  assets/
+  components/
+  composables/
+  i18n/
+  locales/
+  mocks/
+  router/
+  store/
+  views/
+```
+
+## Основные команды
+
+```bash
+npm run dev
+npm run build
+```
+
+## Примечание
+
+Для демонстрации и презентации в проекте предусмотрен гостевой режим без авторизации. Это позволяет быстро показать интерфейс и работу мок-данных без настройки backend.

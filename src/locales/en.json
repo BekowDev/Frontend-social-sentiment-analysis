@@ -64,6 +64,7 @@
         "loadingRegister": "Creating account...",
         "error": "Unable to sign in",
         "errorRegister": "Unable to register",
+        "guestLogin": "Continue as guest",
         "switchToRegister": "No account? Register",
         "switchToLogin": "Already have an account? Sign in",
         "backHome": "Back to Home",
