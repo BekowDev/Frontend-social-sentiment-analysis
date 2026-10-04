@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
+import { isMockEnabled } from '@/mocks/mockSentiment';
 
 const routes = [
     {
@@ -34,6 +35,11 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const auth = useAuthStore();
     if (to.meta.requiresAuth && !auth.isLoggedIn) {
+        if (isMockEnabled()) {
+            auth.enterDemoSession();
+            next();
+            return;
+        }
         next({ name: 'Login' });
         return;
     }

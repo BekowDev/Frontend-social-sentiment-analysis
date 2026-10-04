@@ -1,9 +1,12 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import { useI18n } from 'vue-i18n'
+import { isMockEnabled } from '@/mocks/mockSentiment'
 
 const auth = useAuthStore()
+const router = useRouter()
 const { t, locale } = useI18n()
 
 const landingRef = ref(null)
@@ -18,6 +21,25 @@ const HOVER_RECHECK_DELAY_MS = 450
 const ctaTarget = computed(() => (auth.isLoggedIn ? { name: 'Dashboard' } : { name: 'Login' }))
 
 const ctaLabel = computed(() => (auth.isLoggedIn ? t('landing.ctaDashboard') : t('landing.ctaStart')))
+
+const openLiveDemo = () => {
+    if (isMockEnabled()) {
+        auth.enterDemoSession()
+        router.push({ name: 'Dashboard', query: { demo: '1' } })
+        return
+    }
+
+    router.push(ctaTarget.value)
+}
+
+const openViewDemo = () => {
+    if (isMockEnabled()) {
+        openLiveDemo()
+        return
+    }
+
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })
+}
 
 const primaryFeatures = computed(() => [
     {
@@ -273,12 +295,12 @@ watch(
                     </div>
 
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                        <RouterLink :to="ctaTarget" class="inline-flex items-center justify-center rounded-xl bg-[var(--primary-color)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[var(--secondary-color)]">
+                        <button type="button" class="inline-flex items-center justify-center rounded-xl bg-[var(--primary-color)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[var(--secondary-color)]" @click="openLiveDemo">
                             {{ ctaLabel }}
-                        </RouterLink>
-                        <a href="#how-it-works" class="inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-card-strong)] px-6 py-3 text-sm font-semibold text-[var(--text-color)] transition hover:-translate-y-0.5 hover:bg-[var(--bg-card)]">
+                        </button>
+                        <button type="button" class="inline-flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-card-strong)] px-6 py-3 text-sm font-semibold text-[var(--text-color)] transition hover:-translate-y-0.5 hover:bg-[var(--bg-card)]" @click="openViewDemo">
                             {{ t('landing.ctaDemo') }}
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>

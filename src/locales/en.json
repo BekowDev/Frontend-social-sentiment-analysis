@@ -103,9 +103,12 @@
     },
     "statsCards": {
         "total": "Total",
+        "totalComments": "Total Comments",
         "positive": "Positive",
         "negative": "Negative",
-        "toxic": "Toxic"
+        "neutral": "Neutral",
+        "toxic": "Toxic",
+        "toxicityScore": "Toxicity Score"
     },
     "sentimentChart": {
         "labels": {

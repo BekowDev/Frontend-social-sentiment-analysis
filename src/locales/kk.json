@@ -103,9 +103,12 @@
     },
     "statsCards": {
         "total": "Барлығы",
+        "totalComments": "Пікірлер саны",
         "positive": "Позитив",
         "negative": "Негатив",
-        "toxic": "Токсик"
+        "neutral": "Бейтарап",
+        "toxic": "Токсик",
+        "toxicityScore": "Токсичность"
     },
     "sentimentChart": {
         "labels": {

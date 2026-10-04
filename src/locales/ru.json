@@ -103,9 +103,12 @@
     },
     "statsCards": {
         "total": "Всего",
+        "totalComments": "Всего комментариев",
         "positive": "Позитив",
         "negative": "Негатив",
-        "toxic": "Токсично"
+        "neutral": "Нейтрально",
+        "toxic": "Токсично",
+        "toxicityScore": "Токсичность"
     },
     "sentimentChart": {
         "labels": {

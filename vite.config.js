@@ -9,6 +9,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+    envPrefix: ['VITE_', 'REACT_APP_'],
     plugins: [tailwindcss(), vue(), vueJsx(), vueDevTools()],
     resolve: {
         alias: {

@@ -7,6 +7,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    keywords: {
+        type: Array,
+        default: () => [],
+    },
     activeKeyword: {
         type: String,
         default: "",
@@ -16,6 +20,21 @@ const emit = defineEmits(["select"]);
 const { t } = useI18n();
 
 const topKeywords = computed(() => {
+    const explicitKeywords = (Array.isArray(props.keywords) ? props.keywords : [])
+        .map((item) => {
+            if (typeof item === "string") {
+                return { word: item, count: 1 };
+            }
+            const word = String(item?.word || item?.keyword || "").trim();
+            if (!word) return null;
+            return { word, count: Number(item.count) || 1 };
+        })
+        .filter(Boolean);
+
+    if (explicitKeywords.length) {
+        return explicitKeywords;
+    }
+
     if (!props.comments.length) return [];
 
     const allText = props.comments.map((c) => String(c?.content || c?.text || "").toLowerCase()).join(" ");

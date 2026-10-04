@@ -193,12 +193,42 @@ export const useAnalysisStore = defineStore("analysis", {
                 aiSummary && (aiSummary.ru || aiSummary.kk || aiSummary.en)
                     ? aiSummary
                     : null;
+            const keywords = Array.isArray(result.keywords)
+                ? result.keywords
+                      .map((item) => {
+                          if (typeof item === "string") {
+                              return { word: item, count: 1 };
+                          }
+                          if (!item || typeof item !== "object") {
+                              return null;
+                          }
+                          const word = String(item.word || item.keyword || "").trim();
+                          if (!word) {
+                              return null;
+                          }
+                          return {
+                              word,
+                              count: Number(item.count) || 1,
+                          };
+                      })
+                      .filter(Boolean)
+                : [];
 
             return {
                 ...result,
-                stats: normalizedStats,
+                stats: {
+                    ...normalizedStats,
+                    positivePercent: Number(statsSource.positivePercent) || null,
+                    negativePercent: Number(statsSource.negativePercent) || null,
+                    neutralPercent: Number(statsSource.neutralPercent) || null,
+                    toxicityScore:
+                        Number(statsSource.toxicityScore) ||
+                        Number(result.toxicityScore) ||
+                        null,
+                },
                 sentiment_stats: normalizedStats,
                 comments: normalizedComments,
+                keywords,
                 aiSummary: normalizedAiSummary,
             };
         },

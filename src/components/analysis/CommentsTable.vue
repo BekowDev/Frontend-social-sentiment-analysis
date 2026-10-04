@@ -111,7 +111,9 @@ const handleExport = () => {
         [t("commentsTable.export.sentiment")]: c.analysis?.sentiment,
         [t("commentsTable.export.confidence")]: `${getConfidencePercent(c.analysis)}%`,
         [t("commentsTable.export.toxicity")]: c.analysis?.is_toxic ? t("commentsTable.yes") : t("commentsTable.no"),
-        [t("commentsTable.export.date")]: new Date().toLocaleDateString(),
+        [t("commentsTable.export.date")]: c.date
+            ? new Date(c.date).toLocaleString()
+            : new Date().toLocaleDateString(),
     }));
 
     exportToExcel(data, t("commentsTable.export.fileName"));

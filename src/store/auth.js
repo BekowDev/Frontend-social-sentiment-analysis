@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '@/api';
+import { createDemoAuthToken } from '@/mocks/mockSentiment';
 
 function parseJwtPayload(token) {
     if (!token || typeof token !== 'string') {
@@ -48,6 +49,12 @@ export const useAuthStore = defineStore('auth', {
     },
 
     actions: {
+        enterDemoSession() {
+            if (this.token) {
+                return;
+            }
+            this.setAuthToken(createDemoAuthToken());
+        },
         setAuthToken(token) {
             this.token = token || null;
             this.user = extractUserFromToken(this.token);

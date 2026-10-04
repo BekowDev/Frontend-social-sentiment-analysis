@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAnalysisStore } from '@/store/analysis'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -10,14 +11,16 @@ import KeywordCloud from '@/components/analysis/KeywordCloud.vue'
 import CommentsTable from '@/components/analysis/CommentsTable.vue'
 import SentimentChart from '@/components/SentimentChart.vue'
 import SentimentTrendChart from '@/components/analysis/SentimentTrendChart.vue'
-import MediaPreview from '@/components/MediaPreview.vue' // Проверь правильность пути
+import MediaPreview from '@/components/MediaPreview.vue'
+import { isMockEnabled, MOCK_DEMO_URL } from '@/mocks/mockSentiment'
 const analysisStore = useAnalysisStore()
+const route = useRoute()
 const { t } = useI18n()
 const { results, isLoading, analysisProgress, analysisStatus, history } = storeToRefs(analysisStore)
 const { toast, showNotify } = useNotifications()
 
 const form = ref({
-    url: 'https://t.me/petya_english/5864',
+    url: isMockEnabled() ? MOCK_DEMO_URL : 'https://t.me/petya_english/5864',
     mode: 'fast',
 })
 const searchQuery = ref('')
@@ -25,16 +28,6 @@ const filterSentiment = ref('all')
 
 const hasStartedAnalysis = computed(() => isLoading.value || Boolean(results.value))
 const recentHistory = computed(() => history.value.slice(0, 3))
-
-onMounted(() => {
-    if (history.value.length > 0) {
-        return
-    }
-
-    analysisStore.fetchHistory().catch(() => {
-        showNotify(t('dashboard.analysisError'), 'error')
-    })
-})
 
 const startAnalysis = async () => {
     if (!form.value.url) return showNotify(t('dashboard.invalidLinkError'), 'error')
@@ -52,6 +45,31 @@ const startAnalysis = async () => {
         showNotify(analysisStore.error || t('dashboard.analysisError'), 'error')
     }
 }
+
+onMounted(() => {
+    if (isMockEnabled() && route.query.demo === '1' && !results.value && !isLoading.value) {
+        form.value.url = MOCK_DEMO_URL
+        startAnalysis()
+    }
+
+    if (history.value.length > 0) {
+        return
+    }
+
+    analysisStore.fetchHistory().catch(() => {
+        showNotify(t('dashboard.analysisError'), 'error')
+    })
+})
+
+watch(
+    () => route.query.demo,
+    (demoFlag) => {
+        if (isMockEnabled() && demoFlag === '1' && !isLoading.value) {
+            form.value.url = MOCK_DEMO_URL
+            startAnalysis()
+        }
+    },
+)
 
 const handleKeywordSelect = (word) => {
     searchQuery.value = word
@@ -174,7 +192,7 @@ onUnmounted(() => {
                     </div>
 
                     <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                        <KeywordCloud :comments="results.comments" :activeKeyword="searchQuery" @select="handleKeywordSelect" />
+                        <KeywordCloud :comments="results.comments" :keywords="results.keywords" :activeKeyword="searchQuery" @select="handleKeywordSelect" />
                     </div>
 
                     <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">

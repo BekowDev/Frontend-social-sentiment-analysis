@@ -2,18 +2,22 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const props = defineProps({
     stats: {
         type: Object,
-        required: false, // Можно не передавать, если данные грузятся
+        required: false,
         default: () => ({
             total: 0,
             positive: 0,
             negative: 0,
             toxic: 0,
             neutral: 0,
+            positivePercent: null,
+            negativePercent: null,
+            neutralPercent: null,
+            toxicityScore: null,
         }),
     },
 });
@@ -26,41 +30,72 @@ const safeStats = computed(() => {
         negative: Number(source.negative) || 0,
         toxic: Number(source.toxic) || 0,
         neutral: Number(source.neutral) || 0,
+        positivePercent: Number(source.positivePercent),
+        negativePercent: Number(source.negativePercent),
+        neutralPercent: Number(source.neutralPercent),
+        toxicityScore: Number(source.toxicityScore),
     };
 });
 
+const formatCount = (value) => {
+    return new Intl.NumberFormat(locale.value || "en").format(value);
+};
+
+const formatPercent = (value, digits = 0) => {
+    if (!Number.isFinite(value)) return null;
+    return `${value.toFixed(digits)}%`;
+};
+
 const metricCards = computed(() => {
     const cards = [];
+    const stats = safeStats.value;
 
-    if (safeStats.value.total > 0) {
+    if (stats.total > 0) {
         cards.push({
             key: "total",
-            label: t("statsCards.total"),
-            value: safeStats.value.total,
+            label: t("statsCards.totalComments"),
+            value: formatCount(stats.total),
             valueClass: "text-gray-900 dark:text-gray-100",
         });
     }
-    if (safeStats.value.positive > 0) {
+
+    const positiveValue = formatPercent(stats.positivePercent) || (stats.positive > 0 ? formatCount(stats.positive) : null);
+    if (positiveValue) {
         cards.push({
             key: "positive",
             label: t("statsCards.positive"),
-            value: safeStats.value.positive,
+            value: positiveValue,
             valueClass: "text-green-600",
         });
     }
-    if (safeStats.value.negative > 0) {
+
+    const negativeValue = formatPercent(stats.negativePercent) || (stats.negative > 0 ? formatCount(stats.negative) : null);
+    if (negativeValue) {
         cards.push({
             key: "negative",
             label: t("statsCards.negative"),
-            value: safeStats.value.negative,
+            value: negativeValue,
             valueClass: "text-red-600",
         });
     }
-    if (safeStats.value.toxic > 0) {
+
+    const neutralValue = formatPercent(stats.neutralPercent) || (stats.neutral > 0 ? formatCount(stats.neutral) : null);
+    if (neutralValue) {
+        cards.push({
+            key: "neutral",
+            label: t("statsCards.neutral"),
+            value: neutralValue,
+            valueClass: "text-slate-500 dark:text-slate-300",
+        });
+    }
+
+    const toxicityValue =
+        formatPercent(stats.toxicityScore, 1) || (stats.toxic > 0 ? formatCount(stats.toxic) : null);
+    if (toxicityValue) {
         cards.push({
             key: "toxic",
-            label: t("statsCards.toxic"),
-            value: safeStats.value.toxic,
+            label: t("statsCards.toxicityScore"),
+            value: toxicityValue,
             valueClass: "text-purple-600",
         });
     }
